@@ -31,11 +31,17 @@ class Sumo3D {
             this.renderer.setPixelRatio( window.devicePixelRatio );
             this.renderer.setSize( window.innerWidth, window.innerHeight );
             document.body.appendChild( this.renderer.domElement );
+
+            // TODO: the following two lines of code were created as part of physijs attemp
+            this.THREE = THREE;
+            this.Physijs = Physijs;
         } else {
             let THREE = require('./server/lib/three.js');
             let Ammo = require('./server/lib/ammo.js');
             let Physijs = require('./server/lib/physi.js')(THREE, Ammo);
             this.scene = new Physijs.Scene();
+            this.THREE = THREE;
+            this.Physijs = Physijs;
         }
     }
 
@@ -48,9 +54,9 @@ class Sumo3D {
     addObject(id) {
 
         // setup a single sphere
-        let sphereGeometry = new THREE.SphereGeometry(3, 50, 50, 0, Math.PI * 2, 0, Math.PI * 2);
-        let sphereMaterial = new THREE.MeshNormalMaterial();
-        let sphere = new Physijs.SphereMesh( sphereGeometry, sphereMaterial );
+        let sphereGeometry = new this.THREE.SphereGeometry(3, 50, 50, 0, Math.PI * 2, 0, Math.PI * 2);
+        let sphereMaterial = new this.THREE.MeshNormalMaterial();
+        let sphere = new this.Physijs.SphereMesh( sphereGeometry, sphereMaterial );
         this.scene.add(sphere);
         return this.objects[id] = sphere;
     }
