@@ -24,7 +24,7 @@ class Fighter extends Serializable {
         }
     }
 
-    constructor(id, 3DWorld, x, y) {
+    constructor(id, sumo3D, x, y) {
         super();
         this.id = id; //instance id
 
@@ -44,8 +44,8 @@ class Fighter extends Serializable {
         */
 
         this.class = Fighter;
-        this.3DWorld = 3DWorld;
-        this.physicalObject = this.3DWorld.addObject(this.playerId);
+        this.sumo3D = sumo3D;
+        this.physicalObject = this.sumo3D.addObject(this.playerId);
     };
 
     step(worldSettings) {

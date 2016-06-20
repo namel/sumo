@@ -10,8 +10,8 @@ class SumoGameEngine extends GameEngine {
     constructor() {
         super();
         this.registerClass(Fighter);
-        this.3DWorld = new Sumo3D();
-        this.3DWorld.init();
+        this.sumo3D = new Sumo3D();
+        this.sumo3D.init();
     }
     
     start() {
@@ -26,7 +26,7 @@ class SumoGameEngine extends GameEngine {
 
     step() {
         this.world.stepCount++;
-        this.3DWorld.step();
+        this.sumo3D.step();
     };
 
     makeFighter(id) {
@@ -38,7 +38,7 @@ class SumoGameEngine extends GameEngine {
         var newFighterX = Math.floor(Math.random()*(this.worldSettings.width-200)) + 100;
         var newFighterY = Math.floor(Math.random()*(this.worldSettings.height-200)) + 100;
 
-        var fighter = new Fighter(id, this.3DWorld, newFighterX, newFighterY);
+        var fighter = new Fighter(id, this.sumo3D, newFighterX, newFighterY);
         this.world.objects[id] = fighter;
 
         return fighter;

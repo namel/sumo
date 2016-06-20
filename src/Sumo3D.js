@@ -46,7 +46,7 @@ class Sumo3D {
         let sphereMaterial = new THREE.MeshNormalMaterial();
         let sphere = new Physijs.SphereMesh( sphereGeometry, sphereMaterial );
         this.scene.add(sphere);
-        return = this.objects[id] = sphere;
+        return this.objects[id] = sphere;
     }
 }
 
