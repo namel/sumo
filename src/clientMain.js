@@ -2,17 +2,17 @@ const SumoGameEngine = require('./SumoGameEngine');
 const SumoClientEngine = require('./SumoClientEngine');
 
 var gameEngine = new SumoGameEngine();
-var SumoClientEngine = new SumoClientEngine(gameEngine);
+var sumoClientEngine = new SumoClientEngine(gameEngine);
 
 
 // on each render frame
 function clientStep() {
-    SumoClientEngine.step();
+    sumoClientEngine.step();
     window.requestAnimationFrame(clientStep);
 }
 
 
 // start the client and kick off the infinite render loop
-SumoClientEngine.start();
+sumoClientEngine.start();
 window.requestAnimationFrame(clientStep);
 
