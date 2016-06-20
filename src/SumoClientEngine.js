@@ -78,14 +78,14 @@ class SumoClientEngine extends ClientEngine{
                     }
 
                     if (this.sprites[objId] == null){
-                        let localObj = this.gameEngine.world.objects[objId] = new Ship(nextObj.id, nextObj.x, nextObj.y);
+                        let localObj = this.gameEngine.world.objects[objId] = new Figher(nextObj.id, nextObj.x, nextObj.y);
                         localObj.velocity.set(nextObj.velX, nextObj.velY);
                         localObj.isPlayerControlled  = this.playerId == nextObj.id;
 
 
-                        sprite = window.game.add.sprite(nextObj.x, nextObj.y, 'ship');
+                        sprite = window.game.add.sprite(nextObj.x, nextObj.y, 'fighter');
                         this.sprites[objId] = sprite;
-                        //if own player's ship - color it
+                        //if own player's fighter - color it
                         if (this.playerId == nextObj.id){
                             sprite.tint = 0XFF00FF;
                         }

@@ -1,4 +1,4 @@
-
+"use strict";
 
 
 class Sumo3D {
@@ -14,11 +14,12 @@ class Sumo3D {
     // setup the 3D scene
     init() {
 
-        // setup the scene
-        this.scene = new Physijs.Scene();
-
         // extra work if we need to render (client side only)
-        if (window && document) {
+        if ((typeof window !== 'undefined') && document) {
+
+            // setup the scene
+            this.scene = new Physijs.Scene();
+
 
             // setup camera 
             this.camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -30,12 +31,17 @@ class Sumo3D {
             this.renderer.setPixelRatio( window.devicePixelRatio );
             this.renderer.setSize( window.innerWidth, window.innerHeight );
             document.body.appendChild( this.renderer.domElement );
+        } else {
+            let THREE = require('./server/lib/three.js');
+            let Ammo = require('./server/lib/ammo.js');
+            let Physijs = require('./server/lib/physi.js')(THREE, Ammo);
+            this.scene = new Physijs.Scene();
         }
     }
 
     // single step
     step() {
-        scene.simulate();
+        this.scene.simulate();
     }
 
     // add one object

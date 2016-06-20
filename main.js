@@ -24,8 +24,8 @@ const io = socketIO(requestHandler);
 // setup game servers
 const SumoServerEngine = require(path.join(__dirname, 'src/SumoServerEngine.js'));
 const SumoGameEngine = require(path.join(__dirname, 'src/SumoGameEngine.js'));
-const serverEngine = new SumoServerEngine(io, gameEngine, { debug:{ /* serverSendLag: 600 */ } });
 const gameEngine = new SumoGameEngine();
+const serverEngine = new SumoServerEngine(io, gameEngine, { debug:{ /* serverSendLag: 600 */ } });
 
 
 // start the game

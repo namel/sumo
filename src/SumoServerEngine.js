@@ -1,7 +1,7 @@
 "use strict";
 
 const path = require('path');
-const Ship = require('./Ship');
+const Fighter = require('./Fighter');
 const ServerEngine = require('Incheon').ServerEngine;
 
 class SpaaaceServerEngine extends ServerEngine{
@@ -18,7 +18,7 @@ class SpaaaceServerEngine extends ServerEngine{
 
         var that=this;
 
-        this.gameEngine.makeShip(socket.playerId);
+        this.gameEngine.makeFighter(socket.playerId);
 
 
 

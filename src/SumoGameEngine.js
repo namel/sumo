@@ -53,4 +53,4 @@ class SumoGameEngine extends GameEngine {
     };
 }
 
-module.exports = SpaaaceGameEngine;
+module.exports = SumoGameEngine;
