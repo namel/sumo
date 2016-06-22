@@ -49,32 +49,52 @@ class Fighter extends Serializable {
         }
     }
 
-    refreshPhysics(sumo3D) {
+    refreshPhysics(sumo3D, keepMovement) {
         this.sumo3D = sumo3D;
         if (this.physicalObject) {
+            if (keepMovement) {
+                let pos = this.physicalObject.position;
+                let vel = this.physicalObject.getLinearVelocity();
+                this.x = pos.x;
+                this.y = -pos.y;
+                this.velX = vel.x;
+                this.velY = -vel.y;
+            }
             this.sumo3D.removeObject(this.physicalObject);
         }
         this.physicalObject = this.sumo3D.addObject(this.playerId);
         this.physicalObject.position.set(this.x, 0, -this.y);
-        this.physicalObject.setLinearVelocity(new THREE.Vector3(this.velX, 0, - this.velY));
+        this.physicalObject.setLinearVelocity(new sumo3D.THREE.Vector3(this.velX, 0, - this.velY));
     }
 
     step(worldSettings) {
 
-        // decelerate
+        if (this.physicalObject) {
+            let pos = this.physicalObject.position;
+            let vel = this.physicalObject.getLinearVelocity();
+
+            if (this.x !== pos.x) {
+                console.log(`updating pos vel ${pos.x} ${-pos.y} ${vel.x} ${-vel.y}`);
+            }
+            this.x = pos.x;
+            this.y = -pos.y;
+            this.velX = vel.x;
+            this.velY = -vel.y;
+        }
 
         // handle next move
         if (this.nextMove) { 
-            console.log(`Fighter processing move ${this.nextMove}`);
+            console.log(`Fighter processing move ${JSON.stringify(this.nextMove)}`);
 
             // calculate the direction of the force from the input
             //  - the screen's X coincides with the scene X
             //  - the screen's Y coincides with the scene -Z
             //  - the screen does not control Y
-            var moveDirection = new THREE.Vector3(this.nextMove.clientX - this.x, 0, (-this.nextMove.clientZ) - this.z);
+            var moveDirection = new this.sumo3D.THREE.Vector3(this.nextMove.input.touchX - this.x, 0, (-this.nextMove.input.touchY) - this.y);
 
             // apply a central impulse
-            this.physicalObject.applyCentralImpule(moveDirection.normalize())
+            console.log(`applying impulse towards ${JSON.stringify(moveDirection)}`);
+            this.physicalObject.applyCentralImpulse(moveDirection)
             this.nextMove = null;
         }
     }

@@ -51,12 +51,16 @@ class Sumo3D {
             this.THREE = THREE;
             this.Physijs = Physijs;
         }
+
+        this.scene.setGravity(new this.THREE.Vector3(0, 0, 0));
     }
 
     // single step
     draw() {
         this.scene.simulate();
-        this.renderer.render(this.scene, this.camera);
+        if (this.renderer) {
+            this.renderer.render(this.scene, this.camera);
+        }
     }
 
     // add one object

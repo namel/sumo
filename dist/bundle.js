@@ -9621,32 +9621,52 @@ class Fighter extends Serializable {
         }
     }
 
-    refreshPhysics(sumo3D) {
+    refreshPhysics(sumo3D, keepMovement) {
         this.sumo3D = sumo3D;
         if (this.physicalObject) {
+            if (keepMovement) {
+                let pos = this.physicalObject.position;
+                let vel = this.physicalObject.getLinearVelocity();
+                this.x = pos.x;
+                this.y = -pos.y;
+                this.velX = vel.x;
+                this.velY = -vel.y;
+            }
             this.sumo3D.removeObject(this.physicalObject);
         }
         this.physicalObject = this.sumo3D.addObject(this.playerId);
         this.physicalObject.position.set(this.x, 0, -this.y);
-        this.physicalObject.setLinearVelocity(new THREE.Vector3(this.velX, 0, - this.velY));
+        this.physicalObject.setLinearVelocity(new sumo3D.THREE.Vector3(this.velX, 0, - this.velY));
     }
 
     step(worldSettings) {
 
-        // decelerate
+        if (this.physicalObject) {
+            let pos = this.physicalObject.position;
+            let vel = this.physicalObject.getLinearVelocity();
+
+            if (this.x !== pos.x) {
+                console.log(`updating pos vel ${pos.x} ${-pos.y} ${vel.x} ${-vel.y}`);
+            }
+            this.x = pos.x;
+            this.y = -pos.y;
+            this.velX = vel.x;
+            this.velY = -vel.y;
+        }
 
         // handle next move
         if (this.nextMove) { 
-            console.log(`Fighter processing move ${this.nextMove}`);
+            console.log(`Fighter processing move ${JSON.stringify(this.nextMove)}`);
 
             // calculate the direction of the force from the input
             //  - the screen's X coincides with the scene X
             //  - the screen's Y coincides with the scene -Z
             //  - the screen does not control Y
-            var moveDirection = new THREE.Vector3(this.nextMove.clientX - this.x, 0, (-this.nextMove.clientZ) - this.z);
+            var moveDirection = new this.sumo3D.THREE.Vector3(this.nextMove.input.touchX - this.x, 0, (-this.nextMove.input.touchY) - this.y);
 
             // apply a central impulse
-            this.physicalObject.applyCentralImpule(moveDirection.normalize())
+            console.log(`applying impulse towards ${JSON.stringify(moveDirection)}`);
+            this.physicalObject.applyCentralImpulse(moveDirection)
             this.nextMove = null;
         }
     }
@@ -9709,12 +9729,16 @@ class Sumo3D {
             this.THREE = THREE;
             this.Physijs = Physijs;
         }
+
+        this.scene.setGravity(new this.THREE.Vector3(0, 0, 0));
     }
 
     // single step
     draw() {
         this.scene.simulate();
-        this.renderer.render(this.scene, this.camera);
+        if (this.renderer) {
+            this.renderer.render(this.scene, this.camera);
+        }
     }
 
     // add one object
@@ -9762,10 +9786,12 @@ class SumoClientEngine extends ClientEngine{
         //  Game input
         let that = this;
         var el = document.getElementsByTagName("body")[0];
-        el.addEventListener("touchstart", (e) => { this.touchData = e; }, false);
-        el.addEventListener("touchend", (e) => { this.touchData = null; }, false);
-        el.addEventListener("touchcancel", (e) => { this.touchData = null; }, false);
-        el.addEventListener("touchmove", (e) => { this.touchData = e; }, false);
+        el.addEventListener("click", function( event ) {
+            console.log(`click x-y = ${event.clientX} - ${event.clientY}`);
+            console.log(`on game plane  ${event.clientX - window.innerWidth / 2  }`);
+            console.log(`on game plane  ${window.innerHeight/2 - event.clientY }`);
+            that.touchData = event;
+        }, false);
     }
 
     // a single client step processes the inputs and
@@ -9810,7 +9836,6 @@ class SumoClientEngine extends ClientEngine{
             }
         }
 
-        console.log(`STEP: ${stepToPlay} prev-next ${previousWorldIndex} ${nextWorldIndex}`); 
         // determine current positions by interpolating 
         // between the two worlds
         if (!previousWorld || !nextWorld)
@@ -9839,13 +9864,13 @@ class SumoClientEngine extends ClientEngine{
 
                 // update positions with interpolation
                 // if the object is not self
-                if (this.playerId != nextObj.id) {
+                //if (this.playerId != nextObj.id) {
 
                     var playPercentage = (stepToPlay - previousWorld.stepCount)/(nextWorld.stepCount - previousWorld.stepCount);
 
                     world.objects[objId].x = (nextObj.x - prevObj.x) * playPercentage + prevObj.x;
                     world.objects[objId].y = (nextObj.y - prevObj.y) * playPercentage + prevObj.y;
-                }
+                //}
             }
         }
 
@@ -9860,23 +9885,24 @@ class SumoClientEngine extends ClientEngine{
 
         // step 3: refresh physics for objects that survived
         for (let objId in world.objects) {
-            console.log(`refreshing ${objId}`);
             if (world.objects.hasOwnProperty(objId)) {
-                world.objects[objId].refreshPhysics(this.gameEngine.sumo3D);
+                let obj = world.objects[objId];
+                obj.refreshPhysics(this.gameEngine.sumo3D);
+                console.log(`refreshing ${objId}`);
             }
         }
 
-        console.log(`done step ${stepToPlay}`);
     }
 
     processInputs(){
         if (this.touchData) {
             let input = { 
-                touchX: event.changedTouches[0].clientX, 
-                touchY:event.changedTouches[0].clientY 
+                touchX: this.touchData.clientX - window.innerWidth / 2,
+                touchY: window.innerHeight / 2 - this.touchData.clientY
             };
-            console.log(`sending input to server ${input}`);
+            console.log(`sending input to server ${JSON.stringify(input)}`);
             this.sendInput(input);
+            this.touchData = null;
         }
     }
 
@@ -9913,6 +9939,11 @@ class SumoGameEngine extends GameEngine {
 
     step() {
         this.world.stepCount++;
+        for (var objId in this.world.objects) {
+            if (this.world.objects.hasOwnProperty(objId)) {
+                this.world.objects[objId].step(this.worldSettings);
+            }
+        }
     };
 
     frameTick() {
@@ -9929,6 +9960,7 @@ class SumoGameEngine extends GameEngine {
         let x = Math.random() * 10;
         let y = Math.random() * 10;
         var fighter = new Fighter(id, x, y);
+        fighter.refreshPhysics(this.sumo3D);
         this.world.objects[id] = fighter;
 
         return fighter;
@@ -9936,6 +9968,7 @@ class SumoGameEngine extends GameEngine {
 
     processInput(inputData, playerId){
 
+        console.log(`game engine processing input ${JSON.stringify(inputData)}`);
         var fighter = this.world.objects[playerId];
         
         if (fighter)

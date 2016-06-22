@@ -24,10 +24,12 @@ class SumoClientEngine extends ClientEngine{
         //  Game input
         let that = this;
         var el = document.getElementsByTagName("body")[0];
-        el.addEventListener("touchstart", (e) => { this.touchData = e; }, false);
-        el.addEventListener("touchend", (e) => { this.touchData = null; }, false);
-        el.addEventListener("touchcancel", (e) => { this.touchData = null; }, false);
-        el.addEventListener("touchmove", (e) => { this.touchData = e; }, false);
+        el.addEventListener("click", function( event ) {
+            console.log(`click x-y = ${event.clientX} - ${event.clientY}`);
+            console.log(`on game plane  ${event.clientX - window.innerWidth / 2  }`);
+            console.log(`on game plane  ${window.innerHeight/2 - event.clientY }`);
+            that.touchData = event;
+        }, false);
     }
 
     // a single client step processes the inputs and
@@ -100,13 +102,13 @@ class SumoClientEngine extends ClientEngine{
 
                 // update positions with interpolation
                 // if the object is not self
-                if (this.playerId != nextObj.id) {
+                //if (this.playerId != nextObj.id) {
 
                     var playPercentage = (stepToPlay - previousWorld.stepCount)/(nextWorld.stepCount - previousWorld.stepCount);
 
                     world.objects[objId].x = (nextObj.x - prevObj.x) * playPercentage + prevObj.x;
                     world.objects[objId].y = (nextObj.y - prevObj.y) * playPercentage + prevObj.y;
-                }
+                //}
             }
         }
 
@@ -121,9 +123,10 @@ class SumoClientEngine extends ClientEngine{
 
         // step 3: refresh physics for objects that survived
         for (let objId in world.objects) {
-            console.log(`refreshing ${objId}`);
             if (world.objects.hasOwnProperty(objId)) {
-                world.objects[objId].refreshPhysics(this.gameEngine.sumo3D);
+                let obj = world.objects[objId];
+                obj.refreshPhysics(this.gameEngine.sumo3D);
+                console.log(`refreshing ${objId}`);
             }
         }
 
@@ -132,11 +135,12 @@ class SumoClientEngine extends ClientEngine{
     processInputs(){
         if (this.touchData) {
             let input = { 
-                touchX: event.changedTouches[0].clientX, 
-                touchY:event.changedTouches[0].clientY 
+                touchX: this.touchData.clientX - window.innerWidth / 2,
+                touchY: window.innerHeight / 2 - this.touchData.clientY
             };
-            console.log(`sending input to server ${input}`);
+            console.log(`sending input to server ${JSON.stringify(input)}`);
             this.sendInput(input);
+            this.touchData = null;
         }
     }
 

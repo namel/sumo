@@ -25,6 +25,11 @@ class SumoGameEngine extends GameEngine {
 
     step() {
         this.world.stepCount++;
+        for (var objId in this.world.objects) {
+            if (this.world.objects.hasOwnProperty(objId)) {
+                this.world.objects[objId].step(this.worldSettings);
+            }
+        }
     };
 
     frameTick() {
@@ -41,6 +46,7 @@ class SumoGameEngine extends GameEngine {
         let x = Math.random() * 10;
         let y = Math.random() * 10;
         var fighter = new Fighter(id, x, y);
+        fighter.refreshPhysics(this.sumo3D);
         this.world.objects[id] = fighter;
 
         return fighter;
@@ -48,6 +54,7 @@ class SumoGameEngine extends GameEngine {
 
     processInput(inputData, playerId){
 
+        console.log(`game engine processing input ${JSON.stringify(inputData)}`);
         var fighter = this.world.objects[playerId];
         
         if (fighter)

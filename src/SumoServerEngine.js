@@ -3,7 +3,7 @@ const path = require('path');
 const Fighter = require('./Fighter');
 const ServerEngine = require('incheon').ServerEngine;
 
-class SpaaaceServerEngine extends ServerEngine{
+class SumoServerEngine extends ServerEngine{
     constructor(io, gameEngine, inputOptions){
         super(io, gameEngine, inputOptions);
     };
@@ -11,6 +11,11 @@ class SpaaaceServerEngine extends ServerEngine{
     start(){
         super.start();
     };
+
+    step() {
+        super.step();
+        this.gameEngine.frameTick();
+    }
 
     onPlayerConnected(socket){
         super.onPlayerConnected(socket);
@@ -36,4 +41,4 @@ class SpaaaceServerEngine extends ServerEngine{
 
 }
 
-module.exports = SpaaaceServerEngine;
+module.exports = SumoServerEngine;
