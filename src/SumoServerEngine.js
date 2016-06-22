@@ -1,8 +1,7 @@
 "use strict";
-
 const path = require('path');
 const Fighter = require('./Fighter');
-const ServerEngine = require('Incheon').ServerEngine;
+const ServerEngine = require('incheon').ServerEngine;
 
 class SpaaaceServerEngine extends ServerEngine{
     constructor(io, gameEngine, inputOptions){

@@ -1,6 +1,7 @@
-const ClientEngine = require('Incheon').ClientEngine;
-const GameWorld = require('Incheon').GameWorld;
-const Fighter = require("./Fighter");
+const ClientEngine = require('incheon').ClientEngine;
+const GameWorld = require('incheon').GameWorld;
+const Fighter = require('./Fighter');
+
 
 
 // The Sumo client-side engine
@@ -9,11 +10,13 @@ class SumoClientEngine extends ClientEngine{
     // constructor
     constructor(gameEngine){
         super(gameEngine);
+        this.verbose = true;
     }
 
     // start then client engine
     start(){
         super.start();
+        if (this.verbose) console.log(`starting client, registering input handlers`);
 
         //  Game input
         let that = this;
@@ -39,9 +42,6 @@ class SumoClientEngine extends ClientEngine{
                 if (this.playerId == objId){
                     let objectData = world.objects[objId];
 
-                    this.sprites[objectData.id].x = objectData.x;
-                    this.sprites[objectData.id].y = objectData.y;
-                    this.sprites[objectData.id].angle = objectData.angle;
                 }
             }
         }
@@ -53,6 +53,8 @@ class SumoClientEngine extends ClientEngine{
         var previousWorld = null;
         var nextWorld = null;
 
+        // get two world snapshots that occur, one before current step,
+        // and one equal to or immediately greater than current step
         for (let x=0; x<this.worldBuffer.length; x++ ){
             if (this.worldBuffer[x].stepCount < stepToPlay){
                 previousWorld = this.worldBuffer[x];
@@ -65,9 +67,13 @@ class SumoClientEngine extends ClientEngine{
             }
         }
 
-        
+
+        // determine current positions by interpolating 
+        // between the two worlds
         if (previousWorld && nextWorld){
             let sprite;
+
+            // step 1: create new objects, interpolate existing objects
             for (let objId in nextWorld.objects) {
                 if (nextWorld.objects.hasOwnProperty(objId)) {
                     let prevObj = previousWorld.objects[objId];
@@ -77,72 +83,51 @@ class SumoClientEngine extends ClientEngine{
                         prevObj = nextObj;
                     }
 
-                    if (this.sprites[objId] == null){
-                        let localObj = this.gameEngine.world.objects[objId] = new Figher(nextObj.id, nextObj.x, nextObj.y);
-                        localObj.velocity.set(nextObj.velX, nextObj.velY);
-                        localObj.isPlayerControlled  = this.playerId == nextObj.id;
-
-
-                        sprite = window.game.add.sprite(nextObj.x, nextObj.y, 'fighter');
-                        this.sprites[objId] = sprite;
-                        //if own player's fighter - color it
-                        if (this.playerId == nextObj.id){
-                            sprite.tint = 0XFF00FF;
-                        }
-
-                        sprite.anchor.setTo(0.5, 0.5);
-                        sprite.width = 50;
-                        sprite.height = 45;
-                    }
-                    else{
-                        sprite = this.sprites[objId];
+                    // if the object is new, add it
+                    if (!this.gameEngine.world.objects.hasOwnProperty(objId)) {
+                        let localObj = this.gameEngine.world.objects[objId] = new Fighter(nextObj.id, nextObj.x, nextObj.y);
+                        localObj.velX = nextObj.velX;
+                        localObj.velY = nextObj.velY;
+                        localObj.isPlayerControlled = (this.playerId == nextObj.id);
                     }
 
-                    //update other objects with interpolation
-                    //todo refactor into general interpolation class
-                    if (this.playerId != nextObj.id){
+                    // update positions with interpolation
+                    // if the object is not self
+                    if (this.playerId != nextObj.id) {
 
                         var playPercentage = (stepToPlay - previousWorld.stepCount)/(nextWorld.stepCount - previousWorld.stepCount);
 
-                        if (Math.abs(nextObj.x - prevObj.x) > this.gameEngine.worldSettings.height /2){ //fix for world wraparound
-                            sprite.x = nextObj.x;
-                        }
-                        else{
-                            sprite.x = (nextObj.x - prevObj.x) * playPercentage + prevObj.x;
-                        }
-
-                        if (Math.abs(nextObj.y - prevObj.y) > this.gameEngine.worldSettings.height/2) { //fix for world wraparound
-                            sprite.y = nextObj.y;
-                        }
-                        else{
-                            sprite.y = (nextObj.y - prevObj.y) * playPercentage + prevObj.y;
-                        }
-
-                        var shortest_angle=((((nextObj.angle - prevObj.angle) % 360) + 540) % 360) - 180; //todo wrap this in a util
-                        sprite.angle = prevObj.angle + shortest_angle *  playPercentage;
+                        world.objects[objId].x = (nextObj.x - prevObj.x) * playPercentage + prevObj.x;
+                        world.objects[objId].y = (nextObj.y - prevObj.y) * playPercentage + prevObj.y;
                     }
-
                 }
             }
 
-            //go over previous world to remove objects
+            // step 2: destroy unneeded objects
             for (let objId in previousWorld.objects) {
                 if (previousWorld.objects.hasOwnProperty(objId) && !nextWorld.objects.hasOwnProperty(objId)) {
+                    world.objects[objId].destroy();
                     delete this.gameEngine.world.objects[objId];
-                    if (this.sprites[objId]) {
-                        this.sprites[objId].destroy();
-                    }
-                    delete this.sprites[objId];
+                }
+            }
+
+            // step 3: refresh physics for objects that survived
+            for (let objId in world.objects) {
+                if (world.objects.hasOwnProperty(objId)) {
+                    world.objects.refreshPhysics(this.sumo3D);
                 }
             }
         }
-
-
     }
 
     processInputs(){
         if (this.touchData) {
-            this.sendInput(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
+            let input = { 
+                touchX: event.changedTouches[0].clientX, 
+                touchY:event.changedTouches[0].clientY 
+            };
+            console.log(`sending input to server ${input}`);
+            this.sendInput(input);
         }
     }
 

@@ -1,8 +1,7 @@
 "use strict";
-
-const GameEngine = require('Incheon').GameEngine;
+const GameEngine = require('incheon').GameEngine;
 const Fighter = require('./Fighter');
-const Point= require('Incheon').Point;
+const Point= require('incheon').Point;
 const Sumo3D = require('./Sumo3D');
 
 class SumoGameEngine extends GameEngine {
@@ -35,10 +34,10 @@ class SumoGameEngine extends GameEngine {
             return null;
         }
 
-        var newFighterX = Math.floor(Math.random()*(this.worldSettings.width-200)) + 100;
-        var newFighterY = Math.floor(Math.random()*(this.worldSettings.height-200)) + 100;
-
-        var fighter = new Fighter(id, this.sumo3D, newFighterX, newFighterY);
+        // create a fighter for this client
+        let x = Math.random() * 10;
+        let y = Math.random() * 10;
+        var fighter = new Fighter(id, x, y);
         this.world.objects[id] = fighter;
 
         return fighter;
@@ -51,6 +50,7 @@ class SumoGameEngine extends GameEngine {
         if (fighter)
             fighter.nextMove = inputData;
     };
+
 }
 
 module.exports = SumoGameEngine;

@@ -17,14 +17,20 @@ class Sumo3D {
         // extra work if we need to render (client side only)
         if ((typeof window !== 'undefined') && document) {
 
+            console.log('setting up client-side scene');
+
             // setup the scene
             this.scene = new Physijs.Scene();
-
 
             // setup camera 
             this.camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
             this.camera.position.z = 10;
+            this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
+            // setup light
+            var pointLight = new THREE.PointLight(0x0033ff, 3, 150);
+            pointLight.position.set( 0, 20, 0 );
+            this.scene.add(pointLight);
 
             // setup the renderer and add the canvas to the body
             this.renderer = new THREE.WebGLRenderer();
@@ -59,6 +65,10 @@ class Sumo3D {
         let sphere = new this.Physijs.SphereMesh( sphereGeometry, sphereMaterial );
         this.scene.add(sphere);
         return this.objects[id] = sphere;
+    }
+
+    removeObject(o) {
+        this.scene.remove(o);
     }
 }
 
