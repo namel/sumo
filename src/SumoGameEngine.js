@@ -25,8 +25,11 @@ class SumoGameEngine extends GameEngine {
 
     step() {
         this.world.stepCount++;
-        this.sumo3D.step();
     };
+
+    frameTick() {
+        this.sumo3D.draw();
+    }
 
     makeFighter(id) {
         if (id in this.world.objects){

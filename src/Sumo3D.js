@@ -24,8 +24,10 @@ class Sumo3D {
 
             // setup camera 
             this.camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
-            this.camera.position.z = 10;
+            this.camera.position.set(0, 50, 5);
+            this.camera.up = new THREE.Vector3(0,1,0);
             this.camera.lookAt(new THREE.Vector3(0, 0, 0));
+            this.scene.add(this.camera);
 
             // setup light
             var pointLight = new THREE.PointLight(0x0033ff, 3, 150);
@@ -33,10 +35,10 @@ class Sumo3D {
             this.scene.add(pointLight);
 
             // setup the renderer and add the canvas to the body
-            this.renderer = new THREE.WebGLRenderer();
+            this.renderer = new THREE.WebGLRenderer({ antialias: true });
             this.renderer.setPixelRatio( window.devicePixelRatio );
             this.renderer.setSize( window.innerWidth, window.innerHeight );
-            document.body.appendChild( this.renderer.domElement );
+            document.getElementById( 'viewport' ).appendChild( this.renderer.domElement );
 
             // TODO: the following two lines of code were created as part of physijs attemp
             this.THREE = THREE;
@@ -52,8 +54,9 @@ class Sumo3D {
     }
 
     // single step
-    step() {
+    draw() {
         this.scene.simulate();
+        this.renderer.render(this.scene, this.camera);
     }
 
     // add one object

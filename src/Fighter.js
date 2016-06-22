@@ -56,7 +56,7 @@ class Fighter extends Serializable {
         }
         this.physicalObject = this.sumo3D.addObject(this.playerId);
         this.physicalObject.position.set(this.x, 0, -this.y);
-        this.physicalObject.setLinearVelocity(new THREE.Vector3(this.velX, 0, - this.velY);
+        this.physicalObject.setLinearVelocity(new THREE.Vector3(this.velX, 0, - this.velY));
     }
 
     step(worldSettings) {

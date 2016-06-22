@@ -9599,17 +9599,16 @@ class Fighter extends Serializable {
         this.id = id; //instance id
         this.x = x;
         this.y = y;
+        this.velX = 0;
+        this.velY = 0;
 
         /*
         TODO: remove these
-        this.velX = 0;
-        this.velY = 0;
         this.angle = 90;
         this.rotationSpeed = 3;
         this.acceleration = 0.1;
         this.deceleration = 0.99;
         this.maxSpeed = 2;
-        this.velocity = new Point();
         this.temp={ accelerationVector: new Point() };
         */
 
@@ -9628,6 +9627,8 @@ class Fighter extends Serializable {
             this.sumo3D.removeObject(this.physicalObject);
         }
         this.physicalObject = this.sumo3D.addObject(this.playerId);
+        this.physicalObject.position.set(this.x, 0, -this.y);
+        this.physicalObject.setLinearVelocity(new THREE.Vector3(this.velX, 0, - this.velY));
     }
 
     step(worldSettings) {
@@ -9681,8 +9682,10 @@ class Sumo3D {
 
             // setup camera 
             this.camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
-            this.camera.position.z = 10;
+            this.camera.position.set(0, 50, 5);
+            this.camera.up = new THREE.Vector3(0,1,0);
             this.camera.lookAt(new THREE.Vector3(0, 0, 0));
+            this.scene.add(this.camera);
 
             // setup light
             var pointLight = new THREE.PointLight(0x0033ff, 3, 150);
@@ -9690,10 +9693,10 @@ class Sumo3D {
             this.scene.add(pointLight);
 
             // setup the renderer and add the canvas to the body
-            this.renderer = new THREE.WebGLRenderer();
+            this.renderer = new THREE.WebGLRenderer({ antialias: true });
             this.renderer.setPixelRatio( window.devicePixelRatio );
             this.renderer.setSize( window.innerWidth, window.innerHeight );
-            document.body.appendChild( this.renderer.domElement );
+            document.getElementById( 'viewport' ).appendChild( this.renderer.domElement );
 
             // TODO: the following two lines of code were created as part of physijs attemp
             this.THREE = THREE;
@@ -9709,8 +9712,9 @@ class Sumo3D {
     }
 
     // single step
-    step() {
+    draw() {
         this.scene.simulate();
+        this.renderer.render(this.scene, this.camera);
     }
 
     // add one object
@@ -9745,6 +9749,9 @@ class SumoClientEngine extends ClientEngine{
     constructor(gameEngine){
         super(gameEngine);
         this.verbose = true;
+        this.options.syncStrategy = {
+            handleObject: function() {}
+        }
     }
 
     // start then client engine
@@ -9764,6 +9771,7 @@ class SumoClientEngine extends ClientEngine{
     // a single client step processes the inputs and
     // updates the physics engine
     step(){
+
 
         // important to process inputs before running the game engine loop
         this.processInputs();
@@ -9787,6 +9795,7 @@ class SumoClientEngine extends ClientEngine{
         var previousWorld = null;
         var nextWorld = null;
 
+
         // get two world snapshots that occur, one before current step,
         // and one equal to or immediately greater than current step
         for (let x=0; x<this.worldBuffer.length; x++ ){
@@ -9801,56 +9810,63 @@ class SumoClientEngine extends ClientEngine{
             }
         }
 
-
+        console.log(`STEP: ${stepToPlay} prev-next ${previousWorldIndex} ${nextWorldIndex}`); 
         // determine current positions by interpolating 
         // between the two worlds
-        if (previousWorld && nextWorld){
-            let sprite;
+        if (!previousWorld || !nextWorld)
+            return;
+        console.log(`STEP START: ${stepToPlay} prev-next ${previousWorld.stepCount} ${nextWorld.stepCount}`); 
 
-            // step 1: create new objects, interpolate existing objects
-            for (let objId in nextWorld.objects) {
-                if (nextWorld.objects.hasOwnProperty(objId)) {
-                    let prevObj = previousWorld.objects[objId];
-                    let nextObj = nextWorld.objects[objId];
-                    //todo refactor
-                    if (prevObj == null) {
-                        prevObj = nextObj;
-                    }
+        // step 1: create new objects, interpolate existing objects
+        for (let objId in nextWorld.objects) {
+            if (nextWorld.objects.hasOwnProperty(objId)) {
+                let prevObj = previousWorld.objects[objId];
+                let nextObj = nextWorld.objects[objId];
 
-                    // if the object is new, add it
-                    if (!this.gameEngine.world.objects.hasOwnProperty(objId)) {
-                        let localObj = this.gameEngine.world.objects[objId] = new Fighter(nextObj.id, nextObj.x, nextObj.y);
-                        localObj.velocity.set(nextObj.velX, nextObj.velY);
-                        localObj.isPlayerControlled  = this.playerId == nextObj.id;
-                    }
-
-                    // update positions with interpolation
-                    // if the object is not self
-                    if (this.playerId != nextObj.id) {
-
-                        var playPercentage = (stepToPlay - previousWorld.stepCount)/(nextWorld.stepCount - previousWorld.stepCount);
-
-                        world.objects[objId].x = (nextObj.x - prevObj.x) * playPercentage + prevObj.x;
-                        world.objects[objId].y = (nextObj.y - prevObj.y) * playPercentage + prevObj.y;
-                    }
+                //todo refactor
+                if (prevObj == null) {
+                    prevObj = nextObj;
                 }
-            }
 
-            // step 2: destroy unneeded objects
-            for (let objId in previousWorld.objects) {
-                if (previousWorld.objects.hasOwnProperty(objId) && !nextWorld.objects.hasOwnProperty(objId)) {
-                    world.objects[objId].destroy();
-                    delete this.gameEngine.world.objects[objId];
+                // if the object is new, add it
+                if (!this.gameEngine.world.objects.hasOwnProperty(objId)) {
+                    console.log(`adding new object ${objId}`);
+                    let localObj = this.gameEngine.world.objects[objId] = new Fighter(nextObj.id, nextObj.x, nextObj.y);
+                    localObj.velX = nextObj.velX;
+                    localObj.velY = nextObj.velY;
+                    localObj.isPlayerControlled = (this.playerId == nextObj.id);
                 }
-            }
 
-            // step 3: refresh physics for objects that survived
-            for (let objId in world.objects) {
-                if (world.objects.hasOwnProperty(objId)) {
-                    world.objects.refreshPhysics(this.sumo3D);
+                // update positions with interpolation
+                // if the object is not self
+                if (this.playerId != nextObj.id) {
+
+                    var playPercentage = (stepToPlay - previousWorld.stepCount)/(nextWorld.stepCount - previousWorld.stepCount);
+
+                    world.objects[objId].x = (nextObj.x - prevObj.x) * playPercentage + prevObj.x;
+                    world.objects[objId].y = (nextObj.y - prevObj.y) * playPercentage + prevObj.y;
                 }
             }
         }
+
+        // step 2: destroy unneeded objects
+        for (let objId in previousWorld.objects) {
+            if (previousWorld.objects.hasOwnProperty(objId) && !nextWorld.objects.hasOwnProperty(objId)) {
+                console.log(`destroying unneeded ${objId}`);
+                world.objects[objId].destroy();
+                delete world.objects[objId];
+            }
+        }
+
+        // step 3: refresh physics for objects that survived
+        for (let objId in world.objects) {
+            console.log(`refreshing ${objId}`);
+            if (world.objects.hasOwnProperty(objId)) {
+                world.objects[objId].refreshPhysics(this.gameEngine.sumo3D);
+            }
+        }
+
+        console.log(`done step ${stepToPlay}`);
     }
 
     processInputs(){
@@ -9897,8 +9913,11 @@ class SumoGameEngine extends GameEngine {
 
     step() {
         this.world.stepCount++;
-        this.sumo3D.step();
     };
+
+    frameTick() {
+        this.sumo3D.draw();
+    }
 
     makeFighter(id) {
         if (id in this.world.objects){
@@ -9931,13 +9950,25 @@ module.exports = SumoGameEngine;
 const SumoGameEngine = require('./SumoGameEngine');
 const SumoClientEngine = require('./SumoClientEngine');
 
-var gameEngine = new SumoGameEngine();
-var sumoClientEngine = new SumoClientEngine(gameEngine);
+let gameEngine = new SumoGameEngine();
+let sumoClientEngine = new SumoClientEngine(gameEngine);
+let startEpoch = (new Date()).getTime();
+let currentClientStep = 0;
+let stepRate = 60; // number of steps per second
+let handleStepInterval = 5;  // at which interval are steps actually handled
 
 
 // on each render frame
 function clientStep() {
-    sumoClientEngine.step();
+    gameEngine.frameTick();
+
+    let currentEpoch = (new Date()).getTime();
+    if (currentEpoch > (startEpoch + currentClientStep * (1000/stepRate))) {
+        currentClientStep++;
+        if (currentClientStep % handleStepInterval === 0) {
+            sumoClientEngine.step();
+        }
+    }
     window.requestAnimationFrame(clientStep);
 }
 
