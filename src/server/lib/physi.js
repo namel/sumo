@@ -517,7 +517,7 @@ module.exports = function(THREE, Ammo) {
 				continue;
 			}
 			
-			console.log(data[offset+2])
+			// console.log(data[offset+2])
 
 			if ( object.__dirtyPosition === false ) {
 				object.position.set(

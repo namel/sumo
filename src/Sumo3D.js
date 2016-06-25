@@ -67,7 +67,7 @@ class Sumo3D {
     addObject(id) {
 
         // setup a single sphere
-        let sphereGeometry = new this.THREE.SphereGeometry(3, 50, 50, 0, Math.PI * 2, 0, Math.PI * 2);
+        let sphereGeometry = new this.THREE.SphereGeometry(2, 50, 50, 0, Math.PI * 2, 0, Math.PI * 2);
         let sphereMaterial = new this.THREE.MeshNormalMaterial();
         let sphere = new this.Physijs.SphereMesh( sphereGeometry, sphereMaterial );
         this.scene.add(sphere);

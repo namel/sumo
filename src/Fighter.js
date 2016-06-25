@@ -1,6 +1,7 @@
 "use strict";
 const Point= require('incheon').Point;
 const Serializable= require('incheon').Composables.Serializable;
+const IMPULSE_STRENGTH = 8;
 
 class Fighter extends Serializable {
 
@@ -14,12 +15,16 @@ class Fighter extends Serializable {
     static get netScheme() {
         return {
             id: { type: Serializable.TYPES.UINT8 },
-            x: { type: Serializable.TYPES.INT16 },
-            y: { type: Serializable.TYPES.INT16 },
+            x: { type: Serializable.TYPES.FLOAT32 },
+            y: { type: Serializable.TYPES.FLOAT32 },
             velX: { type: Serializable.TYPES.FLOAT32 },
-            velY: { type: Serializable.TYPES.FLOAT32 },
-            angle: { type: Serializable.TYPES.INT16 }
+            velY: { type: Serializable.TYPES.FLOAT32 }
         }
+    }
+
+    serialize() {
+        // console.log(`Fighter.serialize() of this object ${this.id} ${this.x} ${this.y}`);
+        return super.serialize(arguments);
     }
 
     constructor(id, x, y) {
@@ -29,21 +34,11 @@ class Fighter extends Serializable {
         this.y = y;
         this.velX = 0;
         this.velY = 0;
-
-        /*
-        TODO: remove these
-        this.angle = 90;
-        this.rotationSpeed = 3;
-        this.acceleration = 0.1;
-        this.deceleration = 0.99;
-        this.maxSpeed = 2;
-        this.temp={ accelerationVector: new Point() };
-        */
-
         this.class = Fighter;
     };
 
     destroy() {
+        console.log(`destroying object ${this.id}`);
         if (this.physicalObject) {
             this.sumo3D.removeObject(this.physicalObject);
         }
@@ -56,30 +51,34 @@ class Fighter extends Serializable {
                 let pos = this.physicalObject.position;
                 let vel = this.physicalObject.getLinearVelocity();
                 this.x = pos.x;
-                this.y = -pos.y;
+                this.y = -pos.z;
                 this.velX = vel.x;
-                this.velY = -vel.y;
+                this.velY = -vel.z;
             }
             this.sumo3D.removeObject(this.physicalObject);
         }
         this.physicalObject = this.sumo3D.addObject(this.playerId);
         this.physicalObject.position.set(this.x, 0, -this.y);
         this.physicalObject.setLinearVelocity(new sumo3D.THREE.Vector3(this.velX, 0, - this.velY));
+        this.physicalObject.__dirtyPosition = true;
+
+    // console.log(`after refresh this object ${this.id} ${this.x} ${this.y}`);
     }
 
     step(worldSettings) {
 
+    // console.log(`before step this object ${this.id} ${this.x} ${this.y}`);
         if (this.physicalObject) {
             let pos = this.physicalObject.position;
             let vel = this.physicalObject.getLinearVelocity();
 
             if (this.x !== pos.x) {
-                console.log(`updating pos vel ${pos.x} ${-pos.y} ${vel.x} ${-vel.y}`);
+                // console.log(`updating pos vel ${pos.x} ${-pos.z} ${vel.x} ${-vel.z}`);
             }
             this.x = pos.x;
-            this.y = -pos.y;
+            this.y = -pos.z;
             this.velX = vel.x;
-            this.velY = -vel.y;
+            this.velY = -vel.z;
         }
 
         // handle next move
@@ -93,10 +92,12 @@ class Fighter extends Serializable {
             var moveDirection = new this.sumo3D.THREE.Vector3(this.nextMove.input.touchX - this.x, 0, (-this.nextMove.input.touchY) - this.y);
 
             // apply a central impulse
+            moveDirection.normalize().multiplyScalar(IMPULSE_STRENGTH);
             console.log(`applying impulse towards ${JSON.stringify(moveDirection)}`);
             this.physicalObject.applyCentralImpulse(moveDirection)
             this.nextMove = null;
         }
+    // console.log(`after step this object ${this.id} ${this.x} ${this.y}`);
     }
 }
 

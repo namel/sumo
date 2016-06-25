@@ -78,7 +78,7 @@ class SumoClientEngine extends ClientEngine{
         // between the two worlds
         if (!previousWorld || !nextWorld)
             return;
-        console.log(`STEP START: ${stepToPlay} prev-next ${previousWorld.stepCount} ${nextWorld.stepCount}`); 
+        // console.log(`STEP START: ${stepToPlay} prev-next ${previousWorld.stepCount} ${nextWorld.stepCount}`); 
 
         // step 1: create new objects, interpolate existing objects
         for (let objId in nextWorld.objects) {
@@ -93,7 +93,7 @@ class SumoClientEngine extends ClientEngine{
 
                 // if the object is new, add it
                 if (!this.gameEngine.world.objects.hasOwnProperty(objId)) {
-                    console.log(`adding new object ${objId}`);
+                    console.log(`adding new object ${objId} at (${nextObj.x},${nextObj.y}) velocity (${nextObj.velX},${nextObj.velY})`);
                     let localObj = this.gameEngine.world.objects[objId] = new Fighter(nextObj.id, nextObj.x, nextObj.y);
                     localObj.velX = nextObj.velX;
                     localObj.velY = nextObj.velY;
@@ -126,7 +126,7 @@ class SumoClientEngine extends ClientEngine{
             if (world.objects.hasOwnProperty(objId)) {
                 let obj = world.objects[objId];
                 obj.refreshPhysics(this.gameEngine.sumo3D);
-                console.log(`refreshing ${objId}`);
+                // console.log(`refreshing ${objId}`);
             }
         }
 
