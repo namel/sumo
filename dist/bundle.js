@@ -9372,7 +9372,7 @@ class Serializable{
 
         for (var property in this.class.netScheme) {
             if (this.class.netScheme.hasOwnProperty(property)) {
-
+// console.log(`serializing ${property} as ${JSON.stringify(this.class.netScheme[property])} value ${this[property]}`);
                 Serializable.writeDataView(dataView, this[property], dataByteOffset, this.class.netScheme[property]);
 
                 dataByteOffset += Serializable.getTypeByteSize(this.class.netScheme[property]);
@@ -9394,6 +9394,7 @@ class Serializable{
                 obj[property] = read.data;
 
                 dataBufferIndex += read.bufferSize;
+// console.log(`deserializing ${property} as ${classObj.netScheme[property]} value ${obj[property]}`);
             }
         }
         return obj;
@@ -9503,6 +9504,7 @@ Serializable.TYPES = {
 };
 
 module.exports = Serializable;
+
 },{"../Point":59}],63:[function(require,module,exports){
 "use strict";
 
@@ -9573,6 +9575,7 @@ module.exports = SyncStrategy;
 "use strict";
 const Point= require('incheon').Point;
 const Serializable= require('incheon').Composables.Serializable;
+const IMPULSE_STRENGTH = 16;
 
 class Fighter extends Serializable {
 
@@ -9586,12 +9589,16 @@ class Fighter extends Serializable {
     static get netScheme() {
         return {
             id: { type: Serializable.TYPES.UINT8 },
-            x: { type: Serializable.TYPES.INT16 },
-            y: { type: Serializable.TYPES.INT16 },
+            x: { type: Serializable.TYPES.FLOAT32 },
+            y: { type: Serializable.TYPES.FLOAT32 },
             velX: { type: Serializable.TYPES.FLOAT32 },
-            velY: { type: Serializable.TYPES.FLOAT32 },
-            angle: { type: Serializable.TYPES.INT16 }
+            velY: { type: Serializable.TYPES.FLOAT32 }
         }
+    }
+
+    serialize() {
+        // console.log(`Fighter.serialize() of this object ${this.id} ${this.x} ${this.y}`);
+        return super.serialize(arguments);
     }
 
     constructor(id, x, y) {
@@ -9601,21 +9608,11 @@ class Fighter extends Serializable {
         this.y = y;
         this.velX = 0;
         this.velY = 0;
-
-        /*
-        TODO: remove these
-        this.angle = 90;
-        this.rotationSpeed = 3;
-        this.acceleration = 0.1;
-        this.deceleration = 0.99;
-        this.maxSpeed = 2;
-        this.temp={ accelerationVector: new Point() };
-        */
-
         this.class = Fighter;
     };
 
     destroy() {
+        console.log(`destroying object ${this.id}`);
         if (this.physicalObject) {
             this.sumo3D.removeObject(this.physicalObject);
         }
@@ -9628,30 +9625,34 @@ class Fighter extends Serializable {
                 let pos = this.physicalObject.position;
                 let vel = this.physicalObject.getLinearVelocity();
                 this.x = pos.x;
-                this.y = -pos.y;
+                this.y = -pos.z;
                 this.velX = vel.x;
-                this.velY = -vel.y;
+                this.velY = -vel.z;
             }
             this.sumo3D.removeObject(this.physicalObject);
         }
         this.physicalObject = this.sumo3D.addObject(this.playerId);
         this.physicalObject.position.set(this.x, 0, -this.y);
         this.physicalObject.setLinearVelocity(new sumo3D.THREE.Vector3(this.velX, 0, - this.velY));
+        this.physicalObject.__dirtyPosition = true;
+
+    // console.log(`after refresh this object ${this.id} ${this.x} ${this.y}`);
     }
 
     step(worldSettings) {
 
+    // console.log(`before step this object ${this.id} ${this.x} ${this.y}`);
         if (this.physicalObject) {
             let pos = this.physicalObject.position;
             let vel = this.physicalObject.getLinearVelocity();
 
             if (this.x !== pos.x) {
-                console.log(`updating pos vel ${pos.x} ${-pos.y} ${vel.x} ${-vel.y}`);
+                // console.log(`updating pos vel ${pos.x} ${-pos.z} ${vel.x} ${-vel.z}`);
             }
             this.x = pos.x;
-            this.y = -pos.y;
+            this.y = -pos.z;
             this.velX = vel.x;
-            this.velY = -vel.y;
+            this.velY = -vel.z;
         }
 
         // handle next move
@@ -9665,10 +9666,12 @@ class Fighter extends Serializable {
             var moveDirection = new this.sumo3D.THREE.Vector3(this.nextMove.input.touchX - this.x, 0, (-this.nextMove.input.touchY) - this.y);
 
             // apply a central impulse
+            moveDirection.normalize().multiplyScalar(IMPULSE_STRENGTH);
             console.log(`applying impulse towards ${JSON.stringify(moveDirection)}`);
             this.physicalObject.applyCentralImpulse(moveDirection)
             this.nextMove = null;
         }
+    // console.log(`after step this object ${this.id} ${this.x} ${this.y}`);
     }
 }
 
@@ -9745,7 +9748,7 @@ class Sumo3D {
     addObject(id) {
 
         // setup a single sphere
-        let sphereGeometry = new this.THREE.SphereGeometry(3, 50, 50, 0, Math.PI * 2, 0, Math.PI * 2);
+        let sphereGeometry = new this.THREE.SphereGeometry(2, 50, 50, 0, Math.PI * 2, 0, Math.PI * 2);
         let sphereMaterial = new this.THREE.MeshNormalMaterial();
         let sphere = new this.Physijs.SphereMesh( sphereGeometry, sphereMaterial );
         this.scene.add(sphere);
@@ -9840,7 +9843,7 @@ class SumoClientEngine extends ClientEngine{
         // between the two worlds
         if (!previousWorld || !nextWorld)
             return;
-        console.log(`STEP START: ${stepToPlay} prev-next ${previousWorld.stepCount} ${nextWorld.stepCount}`); 
+        // console.log(`STEP START: ${stepToPlay} prev-next ${previousWorld.stepCount} ${nextWorld.stepCount}`); 
 
         // step 1: create new objects, interpolate existing objects
         for (let objId in nextWorld.objects) {
@@ -9855,7 +9858,7 @@ class SumoClientEngine extends ClientEngine{
 
                 // if the object is new, add it
                 if (!this.gameEngine.world.objects.hasOwnProperty(objId)) {
-                    console.log(`adding new object ${objId}`);
+                    console.log(`adding new object ${objId} at (${nextObj.x},${nextObj.y}) velocity (${nextObj.velX},${nextObj.velY})`);
                     let localObj = this.gameEngine.world.objects[objId] = new Fighter(nextObj.id, nextObj.x, nextObj.y);
                     localObj.velX = nextObj.velX;
                     localObj.velY = nextObj.velY;
@@ -9888,7 +9891,7 @@ class SumoClientEngine extends ClientEngine{
             if (world.objects.hasOwnProperty(objId)) {
                 let obj = world.objects[objId];
                 obj.refreshPhysics(this.gameEngine.sumo3D);
-                console.log(`refreshing ${objId}`);
+                // console.log(`refreshing ${objId}`);
             }
         }
 
@@ -9957,18 +9960,19 @@ class SumoGameEngine extends GameEngine {
         }
 
         // create a fighter for this client
-        let x = Math.random() * 10;
-        let y = Math.random() * 10;
+        let x = Math.random() * 20 - 10;
+        let y = Math.random() * 20 - 10;
         var fighter = new Fighter(id, x, y);
         fighter.refreshPhysics(this.sumo3D);
         this.world.objects[id] = fighter;
+        console.log(`created Fighter#${id} at ${fighter.x},${fighter.y}`);
 
         return fighter;
     };
 
     processInput(inputData, playerId){
 
-        console.log(`game engine processing input ${JSON.stringify(inputData)}`);
+        console.log(`game engine processing player[${playerId}] ${JSON.stringify(inputData)}`);
         var fighter = this.world.objects[playerId];
         
         if (fighter)
@@ -10536,7 +10540,7 @@ module.exports = function(THREE, Ammo) {
 				continue;
 			}
 			
-			console.log(data[offset+2])
+			// console.log(data[offset+2])
 
 			if ( object.__dirtyPosition === false ) {
 				object.position.set(

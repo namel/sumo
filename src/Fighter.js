@@ -1,7 +1,7 @@
 "use strict";
 const Point= require('incheon').Point;
 const Serializable= require('incheon').Composables.Serializable;
-const IMPULSE_STRENGTH = 8;
+const IMPULSE_STRENGTH = 20;
 
 class Fighter extends Serializable {
 
