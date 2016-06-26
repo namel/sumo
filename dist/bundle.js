@@ -9575,7 +9575,7 @@ module.exports = SyncStrategy;
 "use strict";
 const Point= require('incheon').Point;
 const Serializable= require('incheon').Composables.Serializable;
-const IMPULSE_STRENGTH = 16;
+const IMPULSE_STRENGTH = 20;
 
 class Fighter extends Serializable {
 
@@ -9705,15 +9705,24 @@ class Sumo3D {
 
             // setup camera 
             this.camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
-            this.camera.position.set(0, 50, 5);
+            this.camera.position.set(0, 50, 25);
             this.camera.up = new THREE.Vector3(0,1,0);
             this.camera.lookAt(new THREE.Vector3(0, 0, 0));
             this.scene.add(this.camera);
 
             // setup light
-            var pointLight = new THREE.PointLight(0x0033ff, 3, 150);
-            pointLight.position.set( 0, 20, 0 );
-            this.scene.add(pointLight);
+            this.pointLight = new THREE.PointLight(0xffffff, 3, 150);
+            this.pointLight.position.set( 0, 20, 0 );
+            this.scene.add(this.pointLight);
+
+            // setup floor
+            this.floor= new Physijs.CylinderMesh(
+                new THREE.CylinderGeometry(10, 4, 30, 16),
+                new THREE.MeshBasicMaterial( {color: 0x0000ff, wireframe: true} ));
+            this.floor.position.set( 0, -4, 0 );
+
+            this.scene.add(this.floor);
+
 
             // setup the renderer and add the canvas to the body
             this.renderer = new THREE.WebGLRenderer({ antialias: true });
