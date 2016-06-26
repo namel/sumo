@@ -12,7 +12,7 @@ class SumoGameEngine extends GameEngine {
         this.sumo3D = new Sumo3D();
         this.sumo3D.init();
     }
-    
+
     start() {
         super.start();
 
@@ -44,20 +44,20 @@ class SumoGameEngine extends GameEngine {
 
         // create a fighter for this client
         let x = Math.random() * 20 - 10;
-        let y = Math.random() * 20 - 10;
-        var fighter = new Fighter(id, x, y);
+        let z = Math.random() * 20 - 10;
+        var fighter = new Fighter(id, x, 25, z);
         fighter.refreshPhysics(this.sumo3D);
         this.world.objects[id] = fighter;
-        console.log(`created Fighter#${id} at ${fighter.x},${fighter.y}`);
+        console.log(`created Fighter#${id} at ${fighter.x},${fighter.y},${fighter.z}`);
 
         return fighter;
     };
 
     processInput(inputData, playerId){
 
-        console.log(`game engine processing player[${playerId}] ${JSON.stringify(inputData)}`);
+        //console.log(`game engine processing player[${playerId}] ${JSON.stringify(inputData)}`);
         var fighter = this.world.objects[playerId];
-        
+
         if (fighter)
             fighter.nextMove = inputData;
     };

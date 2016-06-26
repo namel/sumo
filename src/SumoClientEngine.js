@@ -25,10 +25,13 @@ class SumoClientEngine extends ClientEngine{
         let that = this;
         var el = document.getElementsByTagName("body")[0];
         el.addEventListener("click", function( event ) {
-            console.log(`click x-y = ${event.clientX} - ${event.clientY}`);
-            console.log(`on game plane  ${event.clientX - window.innerWidth / 2  }`);
-            console.log(`on game plane  ${window.innerHeight/2 - event.clientY }`);
-            that.touchData = event;
+
+            that.touchData = {
+                x: ( event.clientX / window.innerWidth ) * 2 - 1,
+                y:  - ( event.clientY / window.innerHeight ) * 2 + 1
+            }
+            console.log(`click event: `, event);
+            console.log(`click x-y = (${that.touchData.x},${that.touchData.y})`);
         }, false);
     }
 
@@ -41,16 +44,16 @@ class SumoClientEngine extends ClientEngine{
         this.processInputs();
         super.step();
 
-        // update player object
         var world = this.gameEngine.world;
-        for (var objId in world.objects) {
-            if (world.objects.hasOwnProperty(objId)) {
-                if (this.playerId == objId){
-                    let objectData = world.objects[objId];
-
-                }
-            }
-        }
+        // update player object
+        // for (var objId in world.objects) {
+        //     if (world.objects.hasOwnProperty(objId)) {
+        //         if (this.playerId == objId){
+        //             let objectData = world.objects[objId];
+        //
+        //         }
+        //     }
+        // }
 
         //todo alter step count based on lag
         var stepToPlay = this.gameEngine.world.stepCount - 6;
@@ -74,11 +77,11 @@ class SumoClientEngine extends ClientEngine{
             }
         }
 
-        // determine current positions by interpolating 
+        // determine current positions by interpolating
         // between the two worlds
         if (!previousWorld || !nextWorld)
             return;
-        // console.log(`STEP START: ${stepToPlay} prev-next ${previousWorld.stepCount} ${nextWorld.stepCount}`); 
+        // console.log(`STEP START: ${stepToPlay} prev-next ${previousWorld.stepCount} ${nextWorld.stepCount}`);
 
         // step 1: create new objects, interpolate existing objects
         for (let objId in nextWorld.objects) {
@@ -93,10 +96,11 @@ class SumoClientEngine extends ClientEngine{
 
                 // if the object is new, add it
                 if (!this.gameEngine.world.objects.hasOwnProperty(objId)) {
-                    console.log(`adding new object ${objId} at (${nextObj.x},${nextObj.y}) velocity (${nextObj.velX},${nextObj.velY})`);
-                    let localObj = this.gameEngine.world.objects[objId] = new Fighter(nextObj.id, nextObj.x, nextObj.y);
+                    console.log(`adding new object ${objId} at (${nextObj.x},${nextObj.y},${nextObj.z}) velocity (${nextObj.velX},${nextObj.velY},${nextObj.velZ})`);
+                    let localObj = this.gameEngine.world.objects[objId] = new Fighter(nextObj.id, nextObj.x, nextObj.y, nextObj.z);
                     localObj.velX = nextObj.velX;
                     localObj.velY = nextObj.velY;
+                    localObj.velZ = nextObj.velZ;
                     localObj.isPlayerControlled = (this.playerId == nextObj.id);
                 }
 
@@ -108,6 +112,7 @@ class SumoClientEngine extends ClientEngine{
 
                     world.objects[objId].x = (nextObj.x - prevObj.x) * playPercentage + prevObj.x;
                     world.objects[objId].y = (nextObj.y - prevObj.y) * playPercentage + prevObj.y;
+                    world.objects[objId].z = (nextObj.z - prevObj.z) * playPercentage + prevObj.z;
                 //}
             }
         }
@@ -134,12 +139,11 @@ class SumoClientEngine extends ClientEngine{
 
     processInputs(){
         if (this.touchData) {
-            let input = { 
-                touchX: this.touchData.clientX - window.innerWidth / 2,
-                touchY: window.innerHeight / 2 - this.touchData.clientY
-            };
-            console.log(`sending input to server ${JSON.stringify(input)}`);
-            this.sendInput(input);
+            let input = this.gameEngine.sumo3D.calculateImpulse(this.touchData.x, this.touchData.y, this.gameEngine.world.objects[this.playerId]);
+            if (input) {
+                console.log(`sending input to server ${JSON.stringify(input)}`);
+                this.sendInput(input);
+            }
             this.touchData = null;
         }
     }

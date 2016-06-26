@@ -5,7 +5,8 @@ class Sumo3D {
 
     // constructor
     constructor() {
-        this.objects = {}
+        this.objects = {};  // TODO: remove this is not used
+        this.objectCount = 0;
         this.scene = null;
         this.camera = null;
         this.renderer = null;
@@ -22,26 +23,17 @@ class Sumo3D {
             // setup the scene
             this.scene = new Physijs.Scene();
 
-            // setup camera 
+            // setup camera
             this.camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
-            this.camera.position.set(0, 50, 25);
+            this.camera.position.set(0, 35, 40);
             this.camera.up = new THREE.Vector3(0,1,0);
             this.camera.lookAt(new THREE.Vector3(0, 0, 0));
             this.scene.add(this.camera);
 
             // setup light
             this.pointLight = new THREE.PointLight(0xffffff, 3, 150);
-            this.pointLight.position.set( 0, 20, 0 );
+            this.pointLight.position.set( 0, 40, 50 );
             this.scene.add(this.pointLight);
-
-            // setup floor
-            this.floor= new Physijs.CylinderMesh(
-                new THREE.CylinderGeometry(20, 4, 30, 16),
-                new THREE.MeshBasicMaterial( {color: 0x0000ff, wireframe: true} ),
-                0);  // gravity = 0 sets a fixed floor
-            this.floor.position.set( 0, -4, 0 );
-            this.scene.add(this.floor);
-
 
             // setup the renderer and add the canvas to the body
             this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -49,7 +41,10 @@ class Sumo3D {
             this.renderer.setSize( window.innerWidth, window.innerHeight );
             document.getElementById( 'viewport' ).appendChild( this.renderer.domElement );
 
-            // TODO: the following two lines of code were created as part of physijs attemp
+            // a local raycaster
+            this.raycaster = new THREE.Raycaster();
+
+            // TODO: the following two lines of code were created as part of physijs attempt
             this.THREE = THREE;
             this.Physijs = Physijs;
         } else {
@@ -61,6 +56,35 @@ class Sumo3D {
             this.Physijs = Physijs;
         }
 
+        // common objects
+        // setup floor
+        this.floor= new this.Physijs.CylinderMesh(
+            new this.THREE.CylinderGeometry(20, 18, 30, 64),
+            new this.THREE.MeshPhongMaterial( {color: 0xde761a, wireframe: false} ),
+            0);  // gravity = 0 sets a fixed floor
+        this.floor.position.set( 0, -4, 0 );
+        this.scene.add(this.floor);
+
+    }
+
+    // given a point on the camera (screen click)
+    // calculate a corresponding impulse
+    calculateImpulse(x, y, selfObj) {
+        let mouse = new this.THREE.Vector2(x, y);
+        this.raycaster.setFromCamera(mouse, this.camera);
+        let intersects = this.raycaster.intersectObjects( this.scene.children );
+
+        for (let i in intersects) {
+            if (intersects[i].object === this.floor) {
+                let intersectPoint = intersects[i].point;
+                let impulseVector = intersectPoint.sub(selfObj.physicalObject.position);
+                // console.log(`calculated impulse ${JSON.stringify(impulseVector)}`);
+                return impulseVector;
+            }
+        }
+
+        console.log(`failed to calculate impulse`);
+        return null;
     }
 
     // single step
@@ -75,10 +99,11 @@ class Sumo3D {
     addObject(id) {
 
         // setup a single sphere
-        let sphereGeometry = new this.THREE.SphereGeometry(2, 50, 50, 0, Math.PI * 2, 0, Math.PI * 2);
-        let sphereMaterial = new this.THREE.MeshNormalMaterial();
+        let sphereGeometry = new this.THREE.SphereGeometry(2, 32, 32, 0, Math.PI * 2, 0, Math.PI * 2);
+        let sphereMaterial = new this.THREE.MeshPhongMaterial({color: new this.THREE.Color(0, 0 , 1)});
         let sphere = new this.Physijs.SphereMesh( sphereGeometry, sphereMaterial );
         this.scene.add(sphere);
+        this.objectCount++;
         return this.objects[id] = sphere;
     }
 

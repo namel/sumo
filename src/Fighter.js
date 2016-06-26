@@ -1,7 +1,7 @@
 "use strict";
 const Point= require('incheon').Point;
 const Serializable= require('incheon').Composables.Serializable;
-const IMPULSE_STRENGTH = 20;
+const IMPULSE_STRENGTH = 3;
 
 class Fighter extends Serializable {
 
@@ -17,9 +17,11 @@ class Fighter extends Serializable {
             id: { type: Serializable.TYPES.UINT8 },
             x: { type: Serializable.TYPES.FLOAT32 },
             y: { type: Serializable.TYPES.FLOAT32 },
+            z: { type: Serializable.TYPES.FLOAT32 },
             velX: { type: Serializable.TYPES.FLOAT32 },
-            velY: { type: Serializable.TYPES.FLOAT32 }
-        }
+            velY: { type: Serializable.TYPES.FLOAT32 },
+            velZ: { type: Serializable.TYPES.FLOAT32 }
+          }
     }
 
     serialize() {
@@ -27,13 +29,15 @@ class Fighter extends Serializable {
         return super.serialize(arguments);
     }
 
-    constructor(id, x, y) {
+    constructor(id, x, y, z) {
         super();
         this.id = id; //instance id
         this.x = x;
         this.y = y;
+        this.z = z;
         this.velX = 0;
         this.velY = 0;
+        this.velZ = 0;
         this.class = Fighter;
     };
 
@@ -51,15 +55,17 @@ class Fighter extends Serializable {
                 let pos = this.physicalObject.position;
                 let vel = this.physicalObject.getLinearVelocity();
                 this.x = pos.x;
-                this.y = -pos.z;
+                this.y = pos.y;
+                this.z = pos.z;
                 this.velX = vel.x;
-                this.velY = -vel.z;
+                this.velY = vel.y;
+                this.velZ = vel.z;
             }
             this.sumo3D.removeObject(this.physicalObject);
         }
         this.physicalObject = this.sumo3D.addObject(this.playerId);
-        this.physicalObject.position.set(this.x, 0, -this.y);
-        this.physicalObject.setLinearVelocity(new sumo3D.THREE.Vector3(this.velX, 0, - this.velY));
+        this.physicalObject.position.set(this.x, this.y, this.z);
+        this.physicalObject.setLinearVelocity(new sumo3D.THREE.Vector3(this.velX, this.velY, this.velZ));
         this.physicalObject.__dirtyPosition = true;
 
     // console.log(`after refresh this object ${this.id} ${this.x} ${this.y}`);
@@ -67,7 +73,7 @@ class Fighter extends Serializable {
 
     step(worldSettings) {
 
-    // console.log(`before step this object ${this.id} ${this.x} ${this.y}`);
+    //console.log(`before step this object ${this.id} R(${this.x} ${this.y} ${this.z}) V(${this.velX} ${this.velY} ${this.velZ})`);
         if (this.physicalObject) {
             let pos = this.physicalObject.position;
             let vel = this.physicalObject.getLinearVelocity();
@@ -76,30 +82,32 @@ class Fighter extends Serializable {
                 // console.log(`updating pos vel ${pos.x} ${-pos.z} ${vel.x} ${-vel.z}`);
             }
             this.x = pos.x;
-            this.y = -pos.z;
+            this.y = pos.y;
+            this.z = pos.z;
             this.velX = vel.x;
-            this.velY = -vel.z;
+            this.velY = vel.y;
+            this.velZ = vel.z;
         }
 
         // handle next move
-        if (this.nextMove) { 
-            console.log(`Fighter processing move ${JSON.stringify(this.nextMove)}`);
+        if (this.nextMove) {
+            // console.log(`Fighter processing move ${JSON.stringify(this.nextMove)}`);
 
             // calculate the direction of the force from the input
             //  - the screen's X coincides with the scene X
             //  - the screen's Y coincides with the scene -Z
             //  - the screen does not control Y
-            var moveDirection = new this.sumo3D.THREE.Vector3(this.nextMove.input.touchX - this.x, 0, (-this.nextMove.input.touchY) - this.y);
+            let input = this.nextMove.input;
+            var moveDirection = new this.sumo3D.THREE.Vector3(input.x, input.y, input.z);
 
             // apply a central impulse
-            moveDirection.normalize().multiplyScalar(IMPULSE_STRENGTH);
+            moveDirection.multiplyScalar(IMPULSE_STRENGTH);
             console.log(`applying impulse towards ${JSON.stringify(moveDirection)}`);
             this.physicalObject.applyCentralImpulse(moveDirection)
             this.nextMove = null;
         }
-    // console.log(`after step this object ${this.id} ${this.x} ${this.y}`);
+        //console.log(`after step this object ${this.id} R(${this.x} ${this.y} ${this.z}) V(${this.velX} ${this.velY} ${this.velZ})`);
     }
 }
 
 module.exports = Fighter;
-
