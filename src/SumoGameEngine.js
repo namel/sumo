@@ -6,11 +6,12 @@ const Sumo3D = require('./Sumo3D');
 
 class SumoGameEngine extends GameEngine {
 
-    constructor() {
+    constructor(isServer) {
         super();
         this.registerClass(Fighter);
         this.sumo3D = new Sumo3D();
         this.sumo3D.init();
+        this.isServer = !!isServer;  // this was needed for the authority to kill player
     }
 
     start() {
@@ -27,7 +28,13 @@ class SumoGameEngine extends GameEngine {
         this.world.stepCount++;
         for (var objId in this.world.objects) {
             if (this.world.objects.hasOwnProperty(objId)) {
-                this.world.objects[objId].step(this.worldSettings);
+                let obj = this.world.objects[objId];
+                obj.step(this.worldSettings);
+                if (this.isServer && obj.y < -100) {
+                    console.log(`object ${objId} has fallen off the board`);
+                    obj.destroy();
+                    delete this.world.objects[objId];
+                }
             }
         }
     };

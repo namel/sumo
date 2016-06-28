@@ -45,15 +45,7 @@ class SumoClientEngine extends ClientEngine{
         super.step();
 
         var world = this.gameEngine.world;
-        // update player object
-        // for (var objId in world.objects) {
-        //     if (world.objects.hasOwnProperty(objId)) {
-        //         if (this.playerId == objId){
-        //             let objectData = world.objects[objId];
-        //
-        //         }
-        //     }
-        // }
+
 
         //todo alter step count based on lag
         var stepToPlay = this.gameEngine.world.stepCount - 6;
@@ -120,6 +112,11 @@ class SumoClientEngine extends ClientEngine{
         // step 2: destroy unneeded objects
         for (let objId in previousWorld.objects) {
             if (previousWorld.objects.hasOwnProperty(objId) && !nextWorld.objects.hasOwnProperty(objId)) {
+
+                // TODO: apparently objId is a string, but this.playerId is a number.  how is that not a problem?
+                if (+objId === this.playerId) {
+                    alert('You are dead, sumo.  Refresh the page to play again.');
+                }
                 console.log(`destroying unneeded ${objId}`);
                 world.objects[objId].destroy();
                 delete world.objects[objId];

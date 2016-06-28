@@ -1,7 +1,7 @@
 "use strict";
 const Point = require('incheon').Point;
 const Serializable = require('incheon').Composables.Serializable;
-const IMPULSE_STRENGTH = 3;
+const IMPULSE_STRENGTH = 20;
 
 class Fighter extends Serializable {
 
@@ -106,13 +106,13 @@ class Fighter extends Serializable {
 
         // handle next move
         if (this.nextMove) {
-            // console.log(`Fighter processing move ${JSON.stringify(this.nextMove)}`);
 
+            // console.log(`Fighter processing move ${JSON.stringify(this.nextMove)}`);
             let input = this.nextMove.input;
-            var moveDirection = new this.sumo3D.THREE.Vector3(input.x, input.y, input.z);
+            var moveDirection = new this.sumo3D.THREE.Vector3(input.x, 0, input.z);
 
             // apply a central impulse
-            moveDirection.multiplyScalar(IMPULSE_STRENGTH);
+            moveDirection.normalize().multiplyScalar(IMPULSE_STRENGTH);
             console.log(`applying impulse towards ${JSON.stringify(moveDirection)}`);
             this.physicalObject.applyCentralImpulse(moveDirection)
             this.nextMove = null;
