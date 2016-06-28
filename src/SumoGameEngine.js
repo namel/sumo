@@ -38,7 +38,7 @@ class SumoGameEngine extends GameEngine {
 
     makeFighter(id) {
         if (id in this.world.objects){
-            console.log("warning, object with id ", id, " already exists");
+            console.log("error, object with id ", id, " already exists");
             return null;
         }
 

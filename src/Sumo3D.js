@@ -1,12 +1,11 @@
 "use strict";
 
+const SUMO_MASS = 16;
 
 class Sumo3D {
 
     // constructor
     constructor() {
-        this.objects = {};  // TODO: remove this is not used
-        this.objectCount = 0;
         this.scene = null;
         this.camera = null;
         this.renderer = null;
@@ -99,12 +98,20 @@ class Sumo3D {
     addObject(id) {
 
         // setup a single sphere
+
+        // generate a color which is random but not dark
+        let r = Math.random();
+        let g = Math.random();
+        let b = Math.max(0, 1 - r - g);
+        let objColor = new this.THREE.Color(r, g, b);
+
+        // create the physical object
+        console.log(`adding object in 3D with id${id} color${JSON.stringify(objColor)}`);
         let sphereGeometry = new this.THREE.SphereGeometry(2, 32, 32, 0, Math.PI * 2, 0, Math.PI * 2);
-        let sphereMaterial = new this.THREE.MeshPhongMaterial({color: new this.THREE.Color(0, 0 , 1)});
-        let sphere = new this.Physijs.SphereMesh( sphereGeometry, sphereMaterial );
+        let sphereMaterial = new this.THREE.MeshPhongMaterial({color: objColor});
+        let sphere = new this.Physijs.SphereMesh( sphereGeometry, sphereMaterial, SUMO_MASS );
         this.scene.add(sphere);
-        this.objectCount++;
-        return this.objects[id] = sphere;
+        return sphere;
     }
 
     removeObject(o) {

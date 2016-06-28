@@ -1,12 +1,12 @@
 "use strict";
-const Point= require('incheon').Point;
-const Serializable= require('incheon').Composables.Serializable;
+const Point = require('incheon').Point;
+const Serializable = require('incheon').Composables.Serializable;
 const IMPULSE_STRENGTH = 3;
 
 class Fighter extends Serializable {
 
     static get properties() {
-        return  {
+        return {
             id: 7, // class id
             name: "fighter"
         }
@@ -14,14 +14,28 @@ class Fighter extends Serializable {
 
     static get netScheme() {
         return {
-            id: { type: Serializable.TYPES.UINT8 },
-            x: { type: Serializable.TYPES.FLOAT32 },
-            y: { type: Serializable.TYPES.FLOAT32 },
-            z: { type: Serializable.TYPES.FLOAT32 },
-            velX: { type: Serializable.TYPES.FLOAT32 },
-            velY: { type: Serializable.TYPES.FLOAT32 },
-            velZ: { type: Serializable.TYPES.FLOAT32 }
-          }
+            id: {
+                type: Serializable.TYPES.UINT8
+            },
+            x: {
+                type: Serializable.TYPES.FLOAT32
+            },
+            y: {
+                type: Serializable.TYPES.FLOAT32
+            },
+            z: {
+                type: Serializable.TYPES.FLOAT32
+            },
+            velX: {
+                type: Serializable.TYPES.FLOAT32
+            },
+            velY: {
+                type: Serializable.TYPES.FLOAT32
+            },
+            velZ: {
+                type: Serializable.TYPES.FLOAT32
+            }
+        }
     }
 
     serialize() {
@@ -61,19 +75,20 @@ class Fighter extends Serializable {
                 this.velY = vel.y;
                 this.velZ = vel.z;
             }
-            this.sumo3D.removeObject(this.physicalObject);
+        } else {
+            this.physicalObject = this.sumo3D.addObject(this.id);
         }
-        this.physicalObject = this.sumo3D.addObject(this.playerId);
+
         this.physicalObject.position.set(this.x, this.y, this.z);
         this.physicalObject.setLinearVelocity(new sumo3D.THREE.Vector3(this.velX, this.velY, this.velZ));
         this.physicalObject.__dirtyPosition = true;
 
-    // console.log(`after refresh this object ${this.id} ${this.x} ${this.y}`);
+        // console.log(`after refresh this object ${this.id} ${this.x} ${this.y}`);
     }
 
     step(worldSettings) {
 
-    //console.log(`before step this object ${this.id} R(${this.x} ${this.y} ${this.z}) V(${this.velX} ${this.velY} ${this.velZ})`);
+        //console.log(`before step this object ${this.id} R(${this.x} ${this.y} ${this.z}) V(${this.velX} ${this.velY} ${this.velZ})`);
         if (this.physicalObject) {
             let pos = this.physicalObject.position;
             let vel = this.physicalObject.getLinearVelocity();
@@ -93,10 +108,6 @@ class Fighter extends Serializable {
         if (this.nextMove) {
             // console.log(`Fighter processing move ${JSON.stringify(this.nextMove)}`);
 
-            // calculate the direction of the force from the input
-            //  - the screen's X coincides with the scene X
-            //  - the screen's Y coincides with the scene -Z
-            //  - the screen does not control Y
             let input = this.nextMove.input;
             var moveDirection = new this.sumo3D.THREE.Vector3(input.x, input.y, input.z);
 
