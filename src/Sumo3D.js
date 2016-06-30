@@ -1,6 +1,6 @@
 "use strict";
 
-const SUMO_MASS = 16;
+const SUMO_MASS = 8;
 
 class Sumo3D {
 
@@ -108,7 +108,7 @@ class Sumo3D {
         // create the physical object
         console.log(`adding object in 3D with id${id} color${JSON.stringify(objColor)}`);
         let sphereGeometry = new this.THREE.SphereGeometry(2, 32, 32, 0, Math.PI * 2, 0, Math.PI * 2);
-        let sphereMaterial = new this.THREE.MeshPhongMaterial({color: objColor});
+        let sphereMaterial = new this.THREE.MeshPhongMaterial({color: objColor, wireframe: true});
         let sphere = new this.Physijs.SphereMesh( sphereGeometry, sphereMaterial, SUMO_MASS );
         this.scene.add(sphere);
         return sphere;

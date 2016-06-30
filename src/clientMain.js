@@ -11,7 +11,6 @@ let handleStepInterval = 5;  // at which interval are steps actually handled
 
 // on each render frame
 function clientStep() {
-    gameEngine.frameTick();
 
     let currentEpoch = (new Date()).getTime();
     if (currentEpoch > (startEpoch + currentClientStep * (1000/stepRate))) {
@@ -20,6 +19,7 @@ function clientStep() {
             sumoClientEngine.step();
         }
     }
+    gameEngine.frameTick();
     window.requestAnimationFrame(clientStep);
 }
 
