@@ -105,6 +105,9 @@ class SumoClientEngine extends ClientEngine{
                     world.objects[objId].x = (nextObj.x - prevObj.x) * playPercentage + prevObj.x;
                     world.objects[objId].y = (nextObj.y - prevObj.y) * playPercentage + prevObj.y;
                     world.objects[objId].z = (nextObj.z - prevObj.z) * playPercentage + prevObj.z;
+                    world.objects[objId].rx = (nextObj.rx - prevObj.rx) * playPercentage + prevObj.rx;
+                    world.objects[objId].ry = (nextObj.ry - prevObj.ry) * playPercentage + prevObj.ry;
+                    world.objects[objId].rz = (nextObj.rz - prevObj.rz) * playPercentage + prevObj.rz;
                 //}
             }
         }

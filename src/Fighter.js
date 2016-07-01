@@ -76,26 +76,12 @@ class Fighter extends Serializable {
 
     refreshPhysics(sumo3D, keepMovement) {
         this.sumo3D = sumo3D;
-        if (this.physicalObject) {
-            if (keepMovement) {
-                let pos = this.physicalObject.position;
-                let rot = this.physicalObject.rotation;
-                let vel = this.physicalObject.getLinearVelocity();
-                this.x = pos.x;
-                this.y = pos.y;
-                this.z = pos.z;
-                this.rx = rot.x;
-                this.ry = rot.y;
-                this.rz = rot.z;
-                this.velX = vel.x;
-                this.velY = vel.y;
-                this.velZ = vel.z;
-            }
-        } else {
+        if (!this.physicalObject) {
             this.physicalObject = this.sumo3D.addObject(this.id);
         }
 
         this.physicalObject.position.set(this.x, this.y, this.z);
+        this.physicalObject.rotation.set(this.rx, this.ry, this.rz);
         this.physicalObject.setLinearVelocity(new sumo3D.THREE.Vector3(this.velX, this.velY, this.velZ));
         this.physicalObject.__dirtyPosition = true;
 

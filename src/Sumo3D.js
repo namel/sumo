@@ -25,22 +25,24 @@ class Sumo3D {
             this.scene = new Physijs.Scene();
 
             // setup camera
-            this.camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
+            this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
             this.camera.position.set(0, 35, 40);
-            this.camera.up = new THREE.Vector3(0,1,0);
+            this.camera.up = new THREE.Vector3(0, 1, 0);
             this.camera.lookAt(new THREE.Vector3(0, 0, 0));
             this.scene.add(this.camera);
 
             // setup light
             this.pointLight = new THREE.PointLight(0xffffff, 3, 150);
-            this.pointLight.position.set( 0, 40, 50 );
+            this.pointLight.position.set(0, 40, 50);
             this.scene.add(this.pointLight);
 
             // setup the renderer and add the canvas to the body
-            this.renderer = new THREE.WebGLRenderer({ antialias: true });
-            this.renderer.setPixelRatio( window.devicePixelRatio );
-            this.renderer.setSize( window.innerWidth, window.innerHeight );
-            document.getElementById( 'viewport' ).appendChild( this.renderer.domElement );
+            this.renderer = new THREE.WebGLRenderer({
+                antialias: true
+            });
+            this.renderer.setPixelRatio(window.devicePixelRatio);
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('viewport').appendChild(this.renderer.domElement);
 
             // a local raycaster
             this.raycaster = new THREE.Raycaster();
@@ -59,11 +61,19 @@ class Sumo3D {
 
         // common objects
         // setup floor
-        this.floor= new this.Physijs.CylinderMesh(
+        let floorMaterial = this.Physijs.createMaterial(
+            new this.THREE.MeshPhongMaterial({
+                color: 0xde761a,
+                wireframe: false
+            }),
+            FRICTION,
+            RESTITUTION
+        );
+        this.floor = new this.Physijs.CylinderMesh(
             new this.THREE.CylinderGeometry(20, 18, 30, 64),
-            new this.THREE.MeshPhongMaterial( {color: 0xde761a, wireframe: false} ),
-            0);  // gravity = 0 sets a fixed floor
-        this.floor.position.set( 0, -4, 0 );
+            floorMaterial,
+            0); // gravity = 0 sets a fixed floor
+        this.floor.position.set(0, -4, 0);
         this.scene.add(this.floor);
 
     }
@@ -73,7 +83,7 @@ class Sumo3D {
     calculateImpulse(x, y, selfObj) {
         let mouse = new this.THREE.Vector2(x, y);
         this.raycaster.setFromCamera(mouse, this.camera);
-        let intersects = this.raycaster.intersectObjects( this.scene.children );
+        let intersects = this.raycaster.intersectObjects(this.scene.children);
 
         for (let i in intersects) {
             if (intersects[i].object === this.floor) {
@@ -109,9 +119,16 @@ class Sumo3D {
 
         // create the physical object
         console.log(`adding object in 3D with id${id} color${JSON.stringify(objColor)}`);
-        let sphereGeometry = new this.THREE.SphereGeometry(2, 32, 32, 0, Math.PI * 2, 0, Math.PI * 2);
-        let sphereMaterial = new this.THREE.MeshPhongMaterial({color: objColor});
-        let sphere = new this.Physijs.SphereMesh( sphereGeometry, sphereMaterial, SUMO_MASS );
+        let sphereGeometry = new this.THREE.SphereGeometry(2, 16, 16, 0, Math.PI * 2, 0, Math.PI * 2);
+        let sphereMaterial = this.Physijs.createMaterial(
+            new this.THREE.MeshPhongMaterial({
+                color: objColor,
+                wireframe: true
+            }),
+            FRICTION,
+            RESTITUTION
+        );
+        let sphere = new this.Physijs.SphereMesh(sphereGeometry, sphereMaterial, SUMO_MASS);
         this.scene.add(sphere);
         return sphere;
     }
