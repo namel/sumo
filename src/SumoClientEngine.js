@@ -89,7 +89,7 @@ class SumoClientEngine extends ClientEngine{
                 // if the object is new, add it
                 if (!this.gameEngine.world.objects.hasOwnProperty(objId)) {
                     console.log(`adding new object ${objId} at (${nextObj.x},${nextObj.y},${nextObj.z}) velocity (${nextObj.velX},${nextObj.velY},${nextObj.velZ})`);
-                    let localObj = this.gameEngine.world.objects[objId] = new Fighter(objId, nextObj.x, nextObj.y, nextObj.z);
+                    let localObj = this.gameEngine.world.objects[objId] = new Fighter(objId, nextObj.x, nextObj.y, nextObj.z, 0, 0, 0);
                     localObj.velX = nextObj.velX;
                     localObj.velY = nextObj.velY;
                     localObj.velZ = nextObj.velZ;

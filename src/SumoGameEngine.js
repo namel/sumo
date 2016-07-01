@@ -52,7 +52,7 @@ class SumoGameEngine extends GameEngine {
         // create a fighter for this client
         let x = Math.random() * 20 - 10;
         let z = Math.random() * 20 - 10;
-        var fighter = new Fighter(id, x, 25, z);
+        var fighter = new Fighter(id, x, 25, z, 0, 0, 0);
         fighter.refreshPhysics(this.sumo3D);
         this.world.objects[id] = fighter;
         console.log(`created Fighter#${id} at ${fighter.x},${fighter.y},${fighter.z}`);

@@ -26,6 +26,15 @@ class Fighter extends Serializable {
             z: {
                 type: Serializable.TYPES.FLOAT32
             },
+            rx: {
+                type: Serializable.TYPES.FLOAT32
+            },
+            ry: {
+                type: Serializable.TYPES.FLOAT32
+            },
+            rz: {
+                type: Serializable.TYPES.FLOAT32
+            },
             velX: {
                 type: Serializable.TYPES.FLOAT32
             },
@@ -43,12 +52,15 @@ class Fighter extends Serializable {
         return super.serialize(arguments);
     }
 
-    constructor(id, x, y, z) {
+    constructor(id, x, y, z, rx, ry, rz) {
         super();
         this.id = id; //instance id
         this.x = x;
         this.y = y;
         this.z = z;
+        this.rx = rx;
+        this.ry = ry;
+        this.rz = rz;
         this.velX = 0;
         this.velY = 0;
         this.velZ = 0;
@@ -67,10 +79,14 @@ class Fighter extends Serializable {
         if (this.physicalObject) {
             if (keepMovement) {
                 let pos = this.physicalObject.position;
+                let rot = this.physicalObject.rotation;
                 let vel = this.physicalObject.getLinearVelocity();
                 this.x = pos.x;
                 this.y = pos.y;
                 this.z = pos.z;
+                this.rx = rot.x;
+                this.ry = rot.y;
+                this.rz = rot.z;
                 this.velX = vel.x;
                 this.velY = vel.y;
                 this.velZ = vel.z;
@@ -91,6 +107,7 @@ class Fighter extends Serializable {
         //console.log(`before step this object ${this.id} R(${this.x} ${this.y} ${this.z}) V(${this.velX} ${this.velY} ${this.velZ})`);
         if (this.physicalObject) {
             let pos = this.physicalObject.position;
+            let rot = this.physicalObject.rotation;
             let vel = this.physicalObject.getLinearVelocity();
 
             if (this.x !== pos.x) {
@@ -99,6 +116,9 @@ class Fighter extends Serializable {
             this.x = pos.x;
             this.y = pos.y;
             this.z = pos.z;
+            this.rx = rot.x;
+            this.ry = rot.y;
+            this.rz = rot.z;
             this.velX = vel.x;
             this.velY = vel.y;
             this.velZ = vel.z;

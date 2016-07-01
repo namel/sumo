@@ -1,6 +1,8 @@
 "use strict";
 
-const SUMO_MASS = 16;
+const SUMO_MASS = 6;
+const FRICTION = 0.9;
+const RESTITUTION = 0.5;
 
 class Sumo3D {
 
