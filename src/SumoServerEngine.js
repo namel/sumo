@@ -16,7 +16,7 @@ class SumoServerEngine extends ServerEngine{
 
     step() {
         super.step();
-        this.gameEngine.frameTick();
+        this.gameEngine.frameTick(true);
     }
 
     onPlayerConnected(socket){

@@ -39,8 +39,8 @@ class SumoGameEngine extends GameEngine {
         }
     };
 
-    frameTick() {
-        this.sumo3D.draw();
+    frameTick(isServer) {
+        this.sumo3D.draw(isServer);
     }
 
     makeFighter(id) {

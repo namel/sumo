@@ -11,15 +11,18 @@ let handleStepInterval = 5;  // at which interval are steps actually handled
 
 // on each render frame
 function clientStep() {
-    gameEngine.frameTick();
+
 
     let currentEpoch = (new Date()).getTime();
     if (currentEpoch > (startEpoch + currentClientStep * (1000/stepRate))) {
         currentClientStep++;
         if (currentClientStep % handleStepInterval === 0) {
-            sumoClientEngine.step();
+            //sumoClientEngine.step();
         }
     }
+    sumoClientEngine.step();
+    gameEngine.frameTick();
+
     window.requestAnimationFrame(clientStep);
 }
 
@@ -27,4 +30,3 @@ function clientStep() {
 // start the client and kick off the infinite render loop
 sumoClientEngine.start();
 window.requestAnimationFrame(clientStep);
-

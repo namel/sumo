@@ -32,8 +32,14 @@ class Sumo3D {
             this.scene.add(this.camera);
 
             // setup light
-            this.pointLight = new THREE.PointLight(0xffffff, 3, 150);
-            this.pointLight.position.set(0, 40, 50);
+            this.scene.add( new THREE.AmbientLight( 0x606060 ) );
+            this.pointLight = new THREE.PointLight(0xffffff, 2, 100);
+            this.pointLight.position.set(15, 40, 15);
+            this.pointLight.castShadow = true;
+            this.pointLight.shadowDarkness = 0.5;
+            this.pointLight.shadow.camera.near = 1;
+            this.pointLight.shadow.camera.far = 100;
+            this.pointLight.shadow.bias = 0.01;
             this.scene.add(this.pointLight);
 
             // setup the renderer and add the canvas to the body
@@ -42,6 +48,8 @@ class Sumo3D {
             });
             this.renderer.setPixelRatio(window.devicePixelRatio);
             this.renderer.setSize(window.innerWidth, window.innerHeight);
+            this.renderer.shadowMap.enabled = true;
+            this.renderer.shadowMap.type = THREE.BasicShadowMap;
             document.getElementById('viewport').appendChild(this.renderer.domElement);
 
             // a local raycaster
@@ -64,7 +72,8 @@ class Sumo3D {
         let floorMaterial = this.Physijs.createMaterial(
             new this.THREE.MeshPhongMaterial({
                 color: 0xde761a,
-                wireframe: false
+                wireframe: false,
+                shininess: 30
             }),
             FRICTION,
             RESTITUTION
@@ -74,6 +83,7 @@ class Sumo3D {
             floorMaterial,
             0); // gravity = 0 sets a fixed floor
         this.floor.position.set(0, -4, 0);
+        this.floor.receiveShadow = true;
         this.scene.add(this.floor);
 
     }
@@ -99,8 +109,11 @@ class Sumo3D {
     }
 
     // single step
-    draw() {
-        this.scene.simulate();
+    draw(isServer) {
+
+        if (isServer) {
+            this.scene.simulate();
+        }
         if (this.renderer) {
             this.renderer.render(this.scene, this.camera);
         }
@@ -123,12 +136,15 @@ class Sumo3D {
         let sphereMaterial = this.Physijs.createMaterial(
             new this.THREE.MeshPhongMaterial({
                 color: objColor,
-                wireframe: true
+                wireframe: true,
+                shininess: 10
             }),
             FRICTION,
             RESTITUTION
         );
         let sphere = new this.Physijs.SphereMesh(sphereGeometry, sphereMaterial, SUMO_MASS);
+        sphere.castShadow = true;
+        sphere.receiveShadow = true;
         this.scene.add(sphere);
         return sphere;
     }
