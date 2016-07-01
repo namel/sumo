@@ -20,7 +20,6 @@ function clientStep() {
         }
     }
     gameEngine.frameTick();
-
     window.requestAnimationFrame(clientStep);
 }
 
