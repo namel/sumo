@@ -5,10 +5,10 @@ const Fighter = require('./Fighter');
 
 
 // The Sumo client-side engine
-class SumoClientEngine extends ClientEngine{
+class SumoClientEngine extends ClientEngine {
 
     // constructor
-    constructor(gameEngine){
+    constructor(gameEngine) {
         super(gameEngine);
         this.verbose = true;
         this.options.syncStrategy = {
@@ -17,18 +17,18 @@ class SumoClientEngine extends ClientEngine{
     }
 
     // start then client engine
-    start(){
+    start() {
         super.start();
         if (this.verbose) console.log(`starting client, registering input handlers`);
 
         //  Game input
         let that = this;
         var el = document.getElementsByTagName("body")[0];
-        el.addEventListener("click", function( event ) {
+        el.addEventListener("click", function(event) {
 
             that.touchData = {
-                x: ( event.clientX / window.innerWidth ) * 2 - 1,
-                y:  - ( event.clientY / window.innerHeight ) * 2 + 1
+                x: (event.clientX / window.innerWidth) * 2 - 1,
+                y: -(event.clientY / window.innerHeight) * 2 + 1
             }
             console.log(`click event: `, event);
             console.log(`click x-y = (${that.touchData.x},${that.touchData.y})`);
@@ -37,7 +37,7 @@ class SumoClientEngine extends ClientEngine{
 
     // a single client step processes the inputs and
     // updates the physics engine
-    step(){
+    step() {
 
 
         // important to process inputs before running the game engine loop
@@ -57,12 +57,12 @@ class SumoClientEngine extends ClientEngine{
 
         // get two world snapshots that occur, one before current step,
         // and one equal to or immediately greater than current step
-        for (let x=0; x<this.worldBuffer.length; x++ ){
-            if (this.worldBuffer[x].stepCount < stepToPlay){
+        for (let x = 0; x < this.worldBuffer.length; x++) {
+            if (this.worldBuffer[x].stepCount < stepToPlay) {
                 previousWorld = this.worldBuffer[x];
                 previousWorldIndex = x;
             }
-            if (this.worldBuffer[x].stepCount >= stepToPlay){
+            if (this.worldBuffer[x].stepCount >= stepToPlay) {
                 nextWorld = this.worldBuffer[x];
                 nextWorldIndex = x;
                 break;
@@ -100,14 +100,21 @@ class SumoClientEngine extends ClientEngine{
                 // if the object is not self
                 //if (this.playerId != nextObj.id) {
 
-                    var playPercentage = (stepToPlay - previousWorld.stepCount)/(nextWorld.stepCount - previousWorld.stepCount);
+                var playPercentage = (stepToPlay - previousWorld.stepCount) / (nextWorld.stepCount - previousWorld.stepCount);
 
-                    world.objects[objId].x = (nextObj.x - prevObj.x) * playPercentage + prevObj.x;
-                    world.objects[objId].y = (nextObj.y - prevObj.y) * playPercentage + prevObj.y;
-                    world.objects[objId].z = (nextObj.z - prevObj.z) * playPercentage + prevObj.z;
+                world.objects[objId].x = (nextObj.x - prevObj.x) * playPercentage + prevObj.x;
+                world.objects[objId].y = (nextObj.y - prevObj.y) * playPercentage + prevObj.y;
+                world.objects[objId].z = (nextObj.z - prevObj.z) * playPercentage + prevObj.z;
+
+                // interpolate rotation only if no axis-flips
+                if (Math.sign(nextObj.rx) === Math.sign(prevObj.rx) &&
+                    Math.sign(nextObj.ry) === Math.sign(prevObj.ry) &&
+                    Math.sign(nextObj.rz) === Math.sign(prevObj.rz)) {
                     world.objects[objId].rx = (nextObj.rx - prevObj.rx) * playPercentage + prevObj.rx;
                     world.objects[objId].ry = (nextObj.ry - prevObj.ry) * playPercentage + prevObj.ry;
                     world.objects[objId].rz = (nextObj.rz - prevObj.rz) * playPercentage + prevObj.rz;
+                }
+
                 //}
             }
         }
@@ -137,7 +144,7 @@ class SumoClientEngine extends ClientEngine{
 
     }
 
-    processInputs(){
+    processInputs() {
         if (this.touchData) {
             let input = this.gameEngine.sumo3D.calculateImpulse(this.touchData.x, this.touchData.y, this.gameEngine.world.objects[this.playerId]);
             if (input) {

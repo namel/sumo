@@ -34,6 +34,7 @@ class SumoGameEngine extends GameEngine {
                     console.log(`object ${objId} has fallen off the board`);
                     obj.destroy();
                     delete this.world.objects[objId];
+                    this.makeFighter(objId);
                 }
             }
         }
