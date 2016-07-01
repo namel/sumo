@@ -20,6 +20,7 @@ function clientStep() {
         }
     }
     gameEngine.frameTick();
+
     window.requestAnimationFrame(clientStep);
 }
 
@@ -27,4 +28,3 @@ function clientStep() {
 // start the client and kick off the infinite render loop
 sumoClientEngine.start();
 window.requestAnimationFrame(clientStep);
-

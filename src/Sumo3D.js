@@ -1,6 +1,8 @@
 "use strict";
 
 const SUMO_MASS = 8;
+const FRICTION = 0.9;
+const RESTITUTION = 0.5;
 
 class Sumo3D {
 
@@ -57,9 +59,15 @@ class Sumo3D {
 
         // common objects
         // setup floor
+        let floorMaterial = this.Physijs.createMaterial(
+            new this.THREE.MeshPhongMaterial( {color: 0xde761a, wireframe: false} ),
+            FRICTION,
+            RESTITUTION
+        );
+
         this.floor= new this.Physijs.CylinderMesh(
             new this.THREE.CylinderGeometry(20, 18, 30, 64),
-            new this.THREE.MeshPhongMaterial( {color: 0xde761a, wireframe: false} ),
+            floorMaterial,
             0);  // gravity = 0 sets a fixed floor
         this.floor.position.set( 0, -4, 0 );
         this.scene.add(this.floor);
@@ -88,8 +96,13 @@ class Sumo3D {
 
     // single step
     draw() {
-        this.scene.simulate();
+
+        if (!this.scene.simulate()) {
+            console.log(`client simulate failed`);
+        }
+
         if (this.renderer) {
+            console.log('calling render');
             this.renderer.render(this.scene, this.camera);
         }
     }
@@ -107,8 +120,12 @@ class Sumo3D {
 
         // create the physical object
         console.log(`adding object in 3D with id${id} color${JSON.stringify(objColor)}`);
-        let sphereGeometry = new this.THREE.SphereGeometry(2, 32, 32, 0, Math.PI * 2, 0, Math.PI * 2);
-        let sphereMaterial = new this.THREE.MeshPhongMaterial({color: objColor, wireframe: true});
+        let sphereGeometry = new this.THREE.SphereGeometry(2, 16, 16, 0, Math.PI * 2, 0, Math.PI * 2);
+        let sphereMaterial = this.Physijs.createMaterial(
+            new this.THREE.MeshPhongMaterial({color: objColor, wireframe: true}),
+            FRICTION,
+            RESTITUTION
+        );
         let sphere = new this.Physijs.SphereMesh( sphereGeometry, sphereMaterial, SUMO_MASS );
         this.scene.add(sphere);
         return sphere;

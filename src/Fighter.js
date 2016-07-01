@@ -1,7 +1,7 @@
 "use strict";
 const Point = require('incheon').Point;
 const Serializable = require('incheon').Composables.Serializable;
-const IMPULSE_STRENGTH = 20;
+const IMPULSE_STRENGTH = 2;
 
 class Fighter extends Serializable {
 
@@ -89,6 +89,7 @@ class Fighter extends Serializable {
     step(worldSettings) {
 
         //console.log(`before step this object ${this.id} R(${this.x} ${this.y} ${this.z}) V(${this.velX} ${this.velY} ${this.velZ})`);
+        // console.log(`before step angular velocity ${JSON.stringify(this.physicalObject.getAngularVelocity())}`);
         if (this.physicalObject) {
             let pos = this.physicalObject.position;
             let vel = this.physicalObject.getLinearVelocity();
@@ -113,10 +114,15 @@ class Fighter extends Serializable {
 
             // apply a central impulse
             moveDirection.normalize().multiplyScalar(IMPULSE_STRENGTH);
-            console.log(`applying impulse towards ${JSON.stringify(moveDirection)}`);
-            this.physicalObject.applyCentralImpulse(moveDirection)
+            //this.physicalObject.applyCentralImpulse(moveDirection);
+            let applyPoint = new this.sumo3D.THREE.Vector3();
+            applyPoint.copy(this.physicalObject.position);
+            applyPoint.add(new this.sumo3D.THREE.Vector3(0, 2, 0));
+            console.log(`position ${JSON.stringify(this.physicalObject.position)} applying impulse towards ${JSON.stringify(moveDirection)} at ${JSON.stringify(applyPoint)} `);
+            this.physicalObject.applyImpulse(moveDirection, applyPoint);
             this.nextMove = null;
         }
+        // console.log(`after step angular velocity ${JSON.stringify(this.physicalObject.getAngularVelocity())}`);
         //console.log(`after step this object ${this.id} R(${this.x} ${this.y} ${this.z}) V(${this.velX} ${this.velY} ${this.velZ})`);
     }
 }
