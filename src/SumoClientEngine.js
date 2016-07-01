@@ -97,25 +97,22 @@ class SumoClientEngine extends ClientEngine {
                 }
 
                 // update positions with interpolation
-                // if the object is not self
-                //if (this.playerId != nextObj.id) {
-
                 var playPercentage = (stepToPlay - previousWorld.stepCount) / (nextWorld.stepCount - previousWorld.stepCount);
-
                 world.objects[objId].x = (nextObj.x - prevObj.x) * playPercentage + prevObj.x;
                 world.objects[objId].y = (nextObj.y - prevObj.y) * playPercentage + prevObj.y;
                 world.objects[objId].z = (nextObj.z - prevObj.z) * playPercentage + prevObj.z;
 
-                // interpolate rotation only if no axis-flips
-                if (Math.sign(nextObj.rx) === Math.sign(prevObj.rx) &&
-                    Math.sign(nextObj.ry) === Math.sign(prevObj.ry) &&
-                    Math.sign(nextObj.rz) === Math.sign(prevObj.rz)) {
-                    world.objects[objId].rx = (nextObj.rx - prevObj.rx) * playPercentage + prevObj.rx;
-                    world.objects[objId].ry = (nextObj.ry - prevObj.ry) * playPercentage + prevObj.ry;
-                    world.objects[objId].rz = (nextObj.rz - prevObj.rz) * playPercentage + prevObj.rz;
-                }
-
-                //}
+                // interpolate rotation requires slerp which is available in Quaternions
+                var localTHREE = this.gameEngine.sumo3D.THREE;
+                var eRotationPrev = new localTHREE.Euler(prevObj.rx, prevObj.ry, prevObj.rz, 'XYZ');
+                var eRotationNext = new localTHREE.Euler(nextObj.rx, nextObj.ry, nextObj.rz, 'XYZ');
+                var qPrev = (new localTHREE.Quaternion()).setFromEuler(eRotationPrev);
+                var qNext = (new localTHREE.Quaternion()).setFromEuler(eRotationNext);
+                qPrev.slerp(qNext, playPercentage);
+                var eRotationNow = new localTHREE.Euler().setFromQuaternion(qPrev, 'XYZ');
+                world.objects[objId].rx = eRotationNow.x;
+                world.objects[objId].ry = eRotationNow.y;
+                world.objects[objId].rz = eRotationNow.z;
             }
         }
 

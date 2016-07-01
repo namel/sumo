@@ -36,7 +36,7 @@ class Sumo3D {
             this.pointLight = new THREE.PointLight(0xffffff, 2, 100);
             this.pointLight.position.set(15, 40, 15);
             this.pointLight.castShadow = true;
-            this.pointLight.shadowDarkness = 0.25;
+            this.pointLight.shadowDarkness = 0.15;
             this.pointLight.shadow.camera.near = 1;
             this.pointLight.shadow.camera.far = 100;
             this.pointLight.shadow.bias = 0.01;
