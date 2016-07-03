@@ -58,13 +58,6 @@ class Sumo3D {
             // TODO: the following two lines of code were created as part of physijs attempt
             this.THREE = THREE;
             this.Physijs = Physijs;
-        } else {
-            let THREE = require('./server/lib/three.js');
-            let Ammo = require('./server/lib/ammo.js');
-            let Physijs = require('./server/lib/physi.js')(THREE, Ammo);
-            this.scene = new Physijs.Scene();
-            this.THREE = THREE;
-            this.Physijs = Physijs;
         }
 
         // common objects
@@ -109,11 +102,9 @@ class Sumo3D {
     }
 
     // single step
+    // TODO: no need for isServer: logic moved to PhysicsEngine
     draw(isServer) {
 
-        if (isServer) {
-            this.scene.simulate();
-        }
         if (this.renderer) {
             this.renderer.render(this.scene, this.camera);
         }

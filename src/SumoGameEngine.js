@@ -6,12 +6,14 @@ const Sumo3D = require('./Sumo3D');
 
 class SumoGameEngine extends GameEngine {
 
-    constructor(isServer) {
-        super();
+    constructor(isServer, physicsEngine) {
+        super({}, physicsEngine);
         this.registerClass(Fighter);
-        this.sumo3D = new Sumo3D();
-        this.sumo3D.init();
         this.isServer = !!isServer;  // this was needed for the authority to kill player
+        if (!this.isServer) {
+            this.sumo3D = new Sumo3D();
+            this.sumo3D.init();
+        }
     }
 
     start() {
@@ -40,10 +42,17 @@ class SumoGameEngine extends GameEngine {
         }
     };
 
+    // TODO: get rid of isServer
     frameTick(isServer) {
-        this.sumo3D.draw(isServer);
+        if (!isServer) {
+            this.sumo3D.draw(isServer);
+        }
+        if (this.physicsEngine) {
+            this.physicsEngine.step();
+        }
     }
 
+    // only called on server
     makeFighter(id) {
         if (id in this.world.objects){
             console.log("error, object with id ", id, " already exists");
@@ -54,7 +63,7 @@ class SumoGameEngine extends GameEngine {
         let x = Math.random() * 20 - 10;
         let z = Math.random() * 20 - 10;
         var fighter = new Fighter(id, x, 25, z, 0, 0, 0);
-        fighter.refreshPhysics(this.sumo3D);
+        fighter.refreshPhysics(this.physicsEngine);
         this.world.objects[id] = fighter;
         console.log(`created Fighter#${id} at ${fighter.x},${fighter.y},${fighter.z}`);
 

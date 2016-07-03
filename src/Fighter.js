@@ -1,6 +1,6 @@
 "use strict";
 const Point = require('incheon').Point;
-const Serializable = require('incheon').Composables.Serializable;
+const Serializable = require('incheon').composables.Serializable;
 const IMPULSE_STRENGTH = 20;
 
 class Fighter extends Serializable {
@@ -74,6 +74,8 @@ class Fighter extends Serializable {
         }
     }
 
+    // only called on server
+    // TODO: rename sumo3D to physicsEngine !!
     refreshPhysics(sumo3D, keepMovement) {
         this.sumo3D = sumo3D;
         if (!this.physicalObject) {
