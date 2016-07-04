@@ -1,7 +1,9 @@
 const SumoGameEngine = require('./SumoGameEngine');
 const SumoClientEngine = require('./SumoClientEngine');
+const SumoRenderer = require('./SumoRenderer');
 
-let gameEngine = new SumoGameEngine();
+let renderer = new SumoRenderer();
+let gameEngine = new SumoGameEngine({ renderer: renderer});
 let sumoClientEngine = new SumoClientEngine(gameEngine);
 let startEpoch = (new Date()).getTime();
 let currentClientStep = 0;
@@ -21,7 +23,6 @@ function clientStep() {
         }
     }
     sumoClientEngine.step();
-    gameEngine.frameTick();
 
     window.requestAnimationFrame(clientStep);
 }

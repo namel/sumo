@@ -67,24 +67,34 @@ class Fighter extends Serializable {
         this.class = Fighter;
     };
 
-    destroy() {
+    destroy(objectHandler) {
         console.log(`destroying object ${this.id}`);
         if (this.physicalObject) {
-            this.sumo3D.removeObject(this.physicalObject);
+            objectHandler.removeObject(this.physicalObject);
         }
     }
 
-    // only called on server
-    // TODO: rename sumo3D to physicsEngine !!
-    refreshPhysics(sumo3D, keepMovement) {
-        this.sumo3D = sumo3D;
+    updateRenderingAttributes(renderer) {
         if (!this.physicalObject) {
-            this.physicalObject = this.sumo3D.addObject(this.id);
+            this.physicalObject = renderer.addObject(this.id);
         }
 
         this.physicalObject.position.set(this.x, this.y, this.z);
         this.physicalObject.rotation.set(this.rx, this.ry, this.rz);
-        this.physicalObject.setLinearVelocity(new sumo3D.THREE.Vector3(this.velX, this.velY, this.velZ));
+    }
+
+
+    // TODO: physicalObject means different things on client an server.  This is a bug.
+    //       on client: the rendering object
+    //       on server: the physijs object
+    initPhysics(physicsEngine) {
+        this.physicsEngine = physicsEngine;
+        if (!this.physicalObject) {
+            this.physicalObject = physicsEngine.addObject(this.id);
+        }
+
+        this.physicalObject.position.set(this.x, this.y, this.z);
+        this.physicalObject.rotation.set(this.rx, this.ry, this.rz);
         this.physicalObject.__dirtyPosition = true;
 
         // console.log(`after refresh this object ${this.id} ${this.x} ${this.y}`);
@@ -113,11 +123,14 @@ class Fighter extends Serializable {
         }
 
         // handle next move
-        if (this.nextMove) {
+        // TODO: we check if we are on server by looking at window.  This is awful
+        //       once we break physicalObject and renderObject this will no longer
+        //       be necessary
+        if (this.nextMove && (typeof window === 'undefined')) {
 
             // console.log(`Fighter processing move ${JSON.stringify(this.nextMove)}`);
             let input = this.nextMove.input;
-            var moveDirection = new this.sumo3D.THREE.Vector3(input.x, 0, input.z);
+            var moveDirection = new this.physicsEngine.THREE.Vector3(input.x, 0, input.z);
 
             // apply a central impulse
             moveDirection.normalize().multiplyScalar(IMPULSE_STRENGTH);

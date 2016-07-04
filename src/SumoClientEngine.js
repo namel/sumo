@@ -103,13 +103,12 @@ class SumoClientEngine extends ClientEngine {
                 world.objects[objId].z = (nextObj.z - prevObj.z) * playPercentage + prevObj.z;
 
                 // interpolate rotation requires slerp which is available in Quaternions
-                var localTHREE = this.gameEngine.sumo3D.THREE;
-                var eRotationPrev = new localTHREE.Euler(prevObj.rx, prevObj.ry, prevObj.rz, 'XYZ');
-                var eRotationNext = new localTHREE.Euler(nextObj.rx, nextObj.ry, nextObj.rz, 'XYZ');
-                var qPrev = (new localTHREE.Quaternion()).setFromEuler(eRotationPrev);
-                var qNext = (new localTHREE.Quaternion()).setFromEuler(eRotationNext);
+                var eRotationPrev = new THREE.Euler(prevObj.rx, prevObj.ry, prevObj.rz, 'XYZ');
+                var eRotationNext = new THREE.Euler(nextObj.rx, nextObj.ry, nextObj.rz, 'XYZ');
+                var qPrev = (new THREE.Quaternion()).setFromEuler(eRotationPrev);
+                var qNext = (new THREE.Quaternion()).setFromEuler(eRotationNext);
                 qPrev.slerp(qNext, playPercentage);
-                var eRotationNow = new localTHREE.Euler().setFromQuaternion(qPrev, 'XYZ');
+                var eRotationNow = new THREE.Euler().setFromQuaternion(qPrev, 'XYZ');
                 world.objects[objId].rx = eRotationNow.x;
                 world.objects[objId].ry = eRotationNow.y;
                 world.objects[objId].rz = eRotationNow.z;
@@ -120,30 +119,29 @@ class SumoClientEngine extends ClientEngine {
         for (let objId in previousWorld.objects) {
             if (previousWorld.objects.hasOwnProperty(objId) && !nextWorld.objects.hasOwnProperty(objId)) {
 
-                // TODO: apparently objId is a string, but this.playerId is a number.  how is that not a problem?
+                // TODO: apparently objId is a string, but this.playerId is a number.
+                //       how is that not a problem?
                 if (+objId === this.playerId) {
                     alert('You are dead, sumo.  Refresh the page to play again.');
                 }
                 console.log(`destroying unneeded ${objId}`);
-                world.objects[objId].destroy();
+                world.objects[objId].destroy(this.gameEngine.renderer);
                 delete world.objects[objId];
             }
         }
 
-        // step 3: refresh physics for objects that survived
+        // step 3: refresh render attributes for objects that survived
         for (let objId in world.objects) {
             if (world.objects.hasOwnProperty(objId)) {
                 let obj = world.objects[objId];
-                obj.refreshPhysics(this.gameEngine.sumo3D);
-                // console.log(`refreshing ${objId}`);
+                obj.updateRenderingAttributes(this.gameEngine.renderer);
             }
         }
-
     }
 
     processInputs() {
         if (this.touchData) {
-            let input = this.gameEngine.sumo3D.calculateImpulse(this.touchData.x, this.touchData.y, this.gameEngine.world.objects[this.playerId]);
+            let input = this.gameEngine.renderer.calculateImpulse(this.touchData.x, this.touchData.y, this.gameEngine.world.objects[this.playerId]);
             if (input) {
                 console.log(`sending input to server ${JSON.stringify(input)}`);
                 this.sendInput(input);

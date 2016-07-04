@@ -2,7 +2,6 @@
 const GameEngine = require('incheon').GameEngine;
 const Fighter = require('./Fighter');
 const Point= require('incheon').Point;
-const Sumo3D = require('./Sumo3D');
 
 class SumoGameEngine extends GameEngine {
 
@@ -10,17 +9,13 @@ class SumoGameEngine extends GameEngine {
         super(options);
         this.registerClass(Fighter);
         this.isServer = !!this.options.isServer;  // this was needed for the authority to kill player
-        if (!this.isServer) {
-            this.sumo3D = new Sumo3D();
-            this.sumo3D.init();
-        }
 
         var that = this;
-        this.on('playerJoinedOnServer', this.makeFighter.bind(this));
-        this.on('playerDisconnectedOnServer', function(e) {
+        this.on('server.playerJoined', this.makeFighter.bind(this));
+        this.on('server.playerDisconnected', function(e) {
             delete that.world.objects[e.playerId];
         });
-        this.on('inputReceivedOnServer', function(e) {
+        this.on('server.inputReceived', function(e) {
             console.log(`input received on server ${JSON.stringify(e)} ${e.input} ${e.id} ${e.playerId}`)
             that.processInput(e.input, e.playerId);
         })
@@ -37,42 +32,21 @@ class SumoGameEngine extends GameEngine {
     };
 
     // the Sumo Game Engine Step.
-    //
-    // 1. for each object, invoke that object's step
-    //    each object will check if it must handle an input
-    //    and record its position/rotation
-    //    TODO: shouldn't the above "record position/rotation" happen
-    //          after the physics step?
-    // 2. call the physics engine step
-    //
     step() {
 
-        this.world.stepCount++;
+        super.step();
         for (var objId in this.world.objects) {
             if (this.world.objects.hasOwnProperty(objId)) {
                 let obj = this.world.objects[objId];
-                obj.step(this.worldSettings);
                 if (this.isServer && obj.y < -100) {
                     console.log(`object ${objId} has fallen off the board`);
-                    obj.destroy();
+                    obj.destroy(this.physicsEngine);
                     delete this.world.objects[objId];
                     this.makeFighter({playerId: objId});
                 }
             }
         }
-
-        if (this.physicsEngine) {
-            this.physicsEngine.step();
-        }
-
     };
-
-    // TODO: get rid of isServer
-    frameTick(isServer) {
-        if (!isServer) {
-            this.sumo3D.draw();
-        }
-    }
 
     // server-side function to add a new player
     makeFighter(newGuy) {
@@ -85,7 +59,7 @@ class SumoGameEngine extends GameEngine {
         let x = Math.random() * 20 - 10;
         let z = Math.random() * 20 - 10;
         var fighter = new Fighter(newGuy.playerId, x, 25, z, 0, 0, 0);
-        fighter.refreshPhysics(this.physicsEngine);
+        fighter.initPhysics(this.physicsEngine);
         this.world.objects[newGuy.playerId] = fighter;
         console.log(`created Fighter#${newGuy.playerId} at ${fighter.x},${fighter.y},${fighter.z}`);
 
