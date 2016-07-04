@@ -10,23 +10,7 @@ class SumoServerEngine extends ServerEngine{
         this.options.frameRate = 60;
     };
 
-    start(){
-        super.start();
-    };
 
-    onPlayerConnected(socket){
-        super.onPlayerConnected(socket);
-
-        var that=this;
-
-        this.gameEngine.makeFighter(socket.playerId);
-    };
-
-    onPlayerDisconnected(socketId, playerId){
-        super.onPlayerDisconnected(socketId, playerId);
-
-        delete this.gameEngine.world.objects[playerId];
-    };
 
     onReceivedInput(inputData, socket){
         super.onReceivedInput(inputData, socket);

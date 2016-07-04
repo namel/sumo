@@ -14,6 +14,12 @@ class SumoGameEngine extends GameEngine {
             this.sumo3D = new Sumo3D();
             this.sumo3D.init();
         }
+
+        var that = this;
+        this.on('playerJoinedOnServer', this.makeFighter.bind(this));
+        this.on('playerDisconnectedOnServer', function(e) {
+            delete that.world.objects[e.playerId];
+        });
     }
 
     start() {
@@ -46,7 +52,7 @@ class SumoGameEngine extends GameEngine {
                     console.log(`object ${objId} has fallen off the board`);
                     obj.destroy();
                     delete this.world.objects[objId];
-                    this.makeFighter(objId);
+                    this.makeFighter({playerId: objId});
                 }
             }
         }
@@ -64,20 +70,20 @@ class SumoGameEngine extends GameEngine {
         }
     }
 
-    // only called on server
-    makeFighter(id) {
-        if (id in this.world.objects){
-            console.log("error, object with id ", id, " already exists");
+    // server-side function to add a new player
+    makeFighter(newGuy) {
+        if (newGuy.playerId in this.world.objects){
+            console.log("error, object with id ", newGuy.playerId, " already exists");
             return null;
         }
 
         // create a fighter for this client
         let x = Math.random() * 20 - 10;
         let z = Math.random() * 20 - 10;
-        var fighter = new Fighter(id, x, 25, z, 0, 0, 0);
+        var fighter = new Fighter(newGuy.playerId, x, 25, z, 0, 0, 0);
         fighter.refreshPhysics(this.physicsEngine);
-        this.world.objects[id] = fighter;
-        console.log(`created Fighter#${id} at ${fighter.x},${fighter.y},${fighter.z}`);
+        this.world.objects[newGuy.playerId] = fighter;
+        console.log(`created Fighter#${newGuy.playerId} at ${fighter.x},${fighter.y},${fighter.z}`);
 
         return fighter;
     };
