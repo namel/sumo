@@ -21,13 +21,15 @@ var requestHandler = server.listen(PORT, () => console.log(`Listening on ${ PORT
 const io = socketIO(requestHandler);
 
 
-// setup game servers
-const SumoServerEngine = require(path.join(__dirname, 'src/SumoServerEngine.js'));
+// get game classes
+const ServerEngine = require('incheon').ServerEngine;
 const SumoGameEngine = require(path.join(__dirname, 'src/SumoGameEngine.js'));
 const SumoPhysicsEngine = require(path.join(__dirname, 'src/SumoPhysicsEngine.js'));
+
+// create instances
 const physicsEngine = new SumoPhysicsEngine();
 const gameEngine = new SumoGameEngine(true, physicsEngine);
-const serverEngine = new SumoServerEngine(io, gameEngine, { debug:{ /* serverSendLag: 600 */ } });
+const serverEngine = new ServerEngine(io, gameEngine, {});
 
 
 // start the game
