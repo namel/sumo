@@ -20,6 +20,10 @@ class SumoGameEngine extends GameEngine {
         this.on('playerDisconnectedOnServer', function(e) {
             delete that.world.objects[e.playerId];
         });
+        this.on('inputReceivedOnServer', function(e) {
+            console.log(`input received on server ${JSON.stringify(e)} ${e.input} ${e.id} ${e.playerId}`)
+            that.processInput(e.input, e.playerId);
+        })
     }
 
     start() {

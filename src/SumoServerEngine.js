@@ -14,7 +14,7 @@ class SumoServerEngine extends ServerEngine{
 
     onReceivedInput(inputData, socket){
         super.onReceivedInput(inputData, socket);
-        this.gameEngine.processInput(inputData, socket.playerId)
+
     }
 
 }
