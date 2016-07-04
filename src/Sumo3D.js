@@ -102,8 +102,7 @@ class Sumo3D {
     }
 
     // single step
-    // TODO: no need for isServer: logic moved to PhysicsEngine
-    draw(isServer) {
+    draw() {
 
         if (this.renderer) {
             this.renderer.render(this.scene, this.camera);

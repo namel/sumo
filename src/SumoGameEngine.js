@@ -26,7 +26,17 @@ class SumoGameEngine extends GameEngine {
         };
     };
 
+    // the Sumo Game Engine Step.
+    //
+    // 1. for each object, invoke that object's step
+    //    each object will check if it must handle an input
+    //    and record its position/rotation
+    //    TODO: shouldn't the above "record position/rotation" happen
+    //          after the physics step?
+    // 2. call the physics engine step
+    //
     step() {
+
         this.world.stepCount++;
         for (var objId in this.world.objects) {
             if (this.world.objects.hasOwnProperty(objId)) {
@@ -40,15 +50,17 @@ class SumoGameEngine extends GameEngine {
                 }
             }
         }
+
+        if (this.physicsEngine) {
+            this.physicsEngine.step();
+        }
+
     };
 
     // TODO: get rid of isServer
     frameTick(isServer) {
         if (!isServer) {
-            this.sumo3D.draw(isServer);
-        }
-        if (this.physicsEngine) {
-            this.physicsEngine.step();
+            this.sumo3D.draw();
         }
     }
 
