@@ -28,7 +28,7 @@ const SumoPhysicsEngine = require(path.join(__dirname, 'src/SumoPhysicsEngine.js
 
 // create instances
 const physicsEngine = new SumoPhysicsEngine();
-const gameEngine = new SumoGameEngine(true, physicsEngine);
+const gameEngine = new SumoGameEngine({ isServer:true, physicsEngine:physicsEngine });
 const serverEngine = new ServerEngine(io, gameEngine, {});
 
 

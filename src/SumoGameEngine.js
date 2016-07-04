@@ -6,10 +6,10 @@ const Sumo3D = require('./Sumo3D');
 
 class SumoGameEngine extends GameEngine {
 
-    constructor(isServer, physicsEngine) {
-        super({}, physicsEngine);
+    constructor(options) {
+        super(options);
         this.registerClass(Fighter);
-        this.isServer = !!isServer;  // this was needed for the authority to kill player
+        this.isServer = !!this.options.isServer;  // this was needed for the authority to kill player
         if (!this.isServer) {
             this.sumo3D = new Sumo3D();
             this.sumo3D.init();
