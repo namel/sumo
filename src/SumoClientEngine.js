@@ -1,7 +1,5 @@
 const ClientEngine = require('incheon').ClientEngine;
-const GameWorld = require('incheon').GameWorld;
 const Fighter = require('./Fighter');
-
 
 
 // The Sumo client-side engine
@@ -39,13 +37,10 @@ class SumoClientEngine extends ClientEngine {
     // updates the physics engine
     step() {
 
-
         // important to process inputs before running the game engine loop
         this.processInputs();
         super.step();
-
         var world = this.gameEngine.world;
-
 
         //todo alter step count based on lag
         var stepToPlay = this.gameEngine.world.stepCount - 6;
@@ -53,7 +48,6 @@ class SumoClientEngine extends ClientEngine {
         var nextWorldIndex;
         var previousWorld = null;
         var nextWorld = null;
-
 
         // get two world snapshots that occur, one before current step,
         // and one equal to or immediately greater than current step
@@ -73,7 +67,6 @@ class SumoClientEngine extends ClientEngine {
         // between the two worlds
         if (!previousWorld || !nextWorld)
             return;
-        // console.log(`STEP START: ${stepToPlay} prev-next ${previousWorld.stepCount} ${nextWorld.stepCount}`);
 
         // step 1: create new objects, interpolate existing objects
         for (let objId in nextWorld.objects) {
@@ -81,7 +74,7 @@ class SumoClientEngine extends ClientEngine {
                 let prevObj = previousWorld.objects[objId];
                 let nextObj = nextWorld.objects[objId];
 
-                //todo refactor
+                // TODO: refactor
                 if (prevObj == null) {
                     prevObj = nextObj;
                 }
@@ -125,7 +118,7 @@ class SumoClientEngine extends ClientEngine {
                     alert('You are dead, sumo.  Refresh the page to play again.');
                 }
                 console.log(`destroying unneeded ${objId}`);
-                world.objects[objId].destroy(this.gameEngine.renderer);
+                world.objects[objId].destroy();
                 delete world.objects[objId];
             }
         }

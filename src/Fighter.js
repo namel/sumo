@@ -15,22 +15,34 @@ class Fighter extends PhysicalObject {
     constructor(id, x, y, z, rx, ry, rz) {
         super(id, x, y, z, rx, ry, rz);  // note: calling apply with arguments array doesn't work on constructor
         this.class = Fighter;
+        this.renderer = null;
+        this.renderObject = null;
+        this.physicsEngine = null;
+        this.physicalObject = null;
     }
 
-    destroy(objectHandler) {
+    destroy() {
         console.log(`destroying object ${this.id}`);
+
+        // destroy the physicalObject
         if (this.physicalObject) {
-            objectHandler.removeObject(this.physicalObject);
+            this.physicsEngine.removeObject(this.physicalObject);
+        }
+
+        // destroy the renderObject
+        if (this.renderObject) {
+            this.renderer.removeObject(this.renderObject);
         }
     }
 
     updateRenderingAttributes(renderer) {
-        if (!this.physicalObject) {
-            this.physicalObject = renderer.addObject(this.id);
+        if (!this.renderObject) {
+            this.renderer = renderer;
+            this.renderObject = renderer.addObject(this.id);
         }
 
-        this.physicalObject.position.set(this.x, this.y, this.z);
-        this.physicalObject.rotation.set(this.rx, this.ry, this.rz);
+        this.renderObject.position.set(this.x, this.y, this.z);
+        this.renderObject.rotation.set(this.rx, this.ry, this.rz);
     }
 
 
@@ -38,8 +50,9 @@ class Fighter extends PhysicalObject {
     //       on client: the rendering object
     //       on server: the physijs object
     initPhysics(physicsEngine) {
-        this.physicsEngine = physicsEngine;
+
         if (!this.physicalObject) {
+            this.physicsEngine = physicsEngine;
             this.physicalObject = physicsEngine.addObject(this.id);
         }
 

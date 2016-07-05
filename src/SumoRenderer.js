@@ -90,8 +90,7 @@ class SumoRenderer extends Renderer {
         for (let i in intersects) {
             if (intersects[i].object === this.floor) {
                 let intersectPoint = intersects[i].point;
-                let impulseVector = intersectPoint.sub(selfObj.physicalObject.position);
-                // console.log(`calculated impulse ${JSON.stringify(impulseVector)}`);
+                let impulseVector = intersectPoint.sub(selfObj.renderObject.position);
                 return impulseVector;
             }
         }

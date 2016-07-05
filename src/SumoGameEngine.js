@@ -40,7 +40,7 @@ class SumoGameEngine extends GameEngine {
                 let obj = this.world.objects[objId];
                 if (this.isServer && obj.y < -100) {
                     console.log(`object ${objId} has fallen off the board`);
-                    obj.destroy(this.physicsEngine);
+                    obj.destroy();
                     delete this.world.objects[objId];
                     this.makeFighter({playerId: objId});
                 }
