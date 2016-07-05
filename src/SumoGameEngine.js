@@ -10,13 +10,13 @@ class SumoGameEngine extends GameEngine {
         this.registerClass(Fighter);
         this.isServer = !!this.options.isServer;  // this was needed for the authority to kill player
 
+        // TODO: clean-up this/that by binding all functions to this?
         var that = this;
         this.on('server.playerJoined', this.makeFighter.bind(this));
         this.on('server.playerDisconnected', function(e) {
             delete that.world.objects[e.playerId];
         });
         this.on('server.inputReceived', function(e) {
-            console.log(`input received on server ${JSON.stringify(e)} ${e.input} ${e.id} ${e.playerId}`)
             that.processInput(e.input, e.playerId);
         })
     }
