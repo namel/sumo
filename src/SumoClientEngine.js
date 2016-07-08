@@ -116,14 +116,6 @@ class SumoClientEngine extends ClientEngine {
                 delete world.objects[objId];
             }
         }
-
-        // step 3: refresh render attributes for objects that survived
-        for (let objId in world.objects) {
-            if (world.objects.hasOwnProperty(objId)) {
-                let obj = world.objects[objId];
-                obj.updateRenderingAttributes();
-            }
-        }
     }
 
     processInputs() {
