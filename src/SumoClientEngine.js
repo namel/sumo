@@ -121,7 +121,7 @@ class SumoClientEngine extends ClientEngine {
         for (let objId in world.objects) {
             if (world.objects.hasOwnProperty(objId)) {
                 let obj = world.objects[objId];
-                obj.updateRenderingAttributes(this.gameEngine.renderer);
+                obj.updateRenderingAttributes();
             }
         }
     }

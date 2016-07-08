@@ -39,13 +39,10 @@ class Fighter extends PhysicalObject {
         }
     }
 
-    // TODO: we no longer need to pass the renderer.  it should be set on the
-    //       init() call
     // update the attributes of the rendering engine
-    updateRenderingAttributes(renderer) {
+    updateRenderingAttributes() {
         if (!this.renderObject) {
-            this.renderer = renderer;
-            this.renderObject = renderer.addObject(this.id);
+            this.renderObject = this.renderer.addObject(this.id);
         }
 
         this.renderObject.position.set(this.x, this.y, this.z);
