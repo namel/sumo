@@ -73,6 +73,7 @@ class SumoClientEngine extends ClientEngine {
             if (nextWorld.objects.hasOwnProperty(objId)) {
                 let prevObj = previousWorld.objects[objId];
                 let nextObj = nextWorld.objects[objId];
+                let curObj = null;
 
                 // TODO: refactor
                 if (prevObj == null) {
@@ -82,29 +83,22 @@ class SumoClientEngine extends ClientEngine {
                 // if the object is new, add it
                 if (!this.gameEngine.world.objects.hasOwnProperty(objId)) {
                     console.log(`adding new object ${objId} at (${nextObj.x},${nextObj.y},${nextObj.z}) velocity (${nextObj.velX},${nextObj.velY},${nextObj.velZ})`);
-                    let localObj = this.gameEngine.world.objects[objId] = new Fighter(objId, nextObj.x, nextObj.y, nextObj.z, 0, 0, 0);
-                    localObj.velX = nextObj.velX;
-                    localObj.velY = nextObj.velY;
-                    localObj.velZ = nextObj.velZ;
-                    localObj.isPlayerControlled = (this.playerId == nextObj.id);
+                    curObj = world.objects[objId] = new Fighter(objId, nextObj.x, nextObj.y, nextObj.z, 0, 0, 0);
+                    curObj.init({
+                        renderer: this.gameEngine.renderer,
+                        velX: nextObj.velX,
+                        velY: nextObj.velY,
+                        velZ: nextObj.velZ,
+                        isPlayerControlled: (this.playerId == nextObj.id)
+                    });
                 }
 
                 // update positions with interpolation
+                curObj = world.objects[objId];
                 var playPercentage = (stepToPlay - previousWorld.stepCount) / (nextWorld.stepCount - previousWorld.stepCount);
-                world.objects[objId].x = (nextObj.x - prevObj.x) * playPercentage + prevObj.x;
-                world.objects[objId].y = (nextObj.y - prevObj.y) * playPercentage + prevObj.y;
-                world.objects[objId].z = (nextObj.z - prevObj.z) * playPercentage + prevObj.z;
-
-                // interpolate rotation requires slerp which is available in Quaternions
-                var eRotationPrev = new THREE.Euler(prevObj.rx, prevObj.ry, prevObj.rz, 'XYZ');
-                var eRotationNext = new THREE.Euler(nextObj.rx, nextObj.ry, nextObj.rz, 'XYZ');
-                var qPrev = (new THREE.Quaternion()).setFromEuler(eRotationPrev);
-                var qNext = (new THREE.Quaternion()).setFromEuler(eRotationNext);
-                qPrev.slerp(qNext, playPercentage);
-                var eRotationNow = new THREE.Euler().setFromQuaternion(qPrev, 'XYZ');
-                world.objects[objId].rx = eRotationNow.x;
-                world.objects[objId].ry = eRotationNow.y;
-                world.objects[objId].rz = eRotationNow.z;
+                if (typeof curObj.syncInterpolated === 'function') {
+                    curObj.syncInterpolated(prevObj, nextObj, playPercentage)
+                }
             }
         }
 
