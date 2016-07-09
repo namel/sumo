@@ -85,12 +85,12 @@ class SumoClientEngine extends ClientEngine {
                     console.log(`adding new object ${objId} at (${nextObj.x},${nextObj.y},${nextObj.z}) velocity (${nextObj.velX},${nextObj.velY},${nextObj.velZ})`);
                     curObj = world.objects[objId] = new Fighter(objId, nextObj.x, nextObj.y, nextObj.z, 0, 0, 0);
                     curObj.init({
-                        renderer: this.gameEngine.renderer,
                         velX: nextObj.velX,
                         velY: nextObj.velY,
                         velZ: nextObj.velZ,
                         isPlayerControlled: (this.playerId == nextObj.id)
                     });
+                    curObj.initRender(this.gameEngine.renderer);
                 }
 
                 // update positions with interpolation

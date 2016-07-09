@@ -15,38 +15,16 @@ class Fighter extends THREEPhysicalObject {
     constructor(id, x, y, z, rx, ry, rz) {
         super(id, x, y, z, rx, ry, rz);  // note: calling apply with arguments array doesn't work on constructor
         this.class = Fighter;
-        this.renderer = null;
-        this.renderObject = null;
-        this.physicsEngine = null;
-        this.physicalObject = null;
     }
 
     init(options) {
         Object.assign(this, options);
     }
 
-    destroy() {
-        console.log(`destroying object ${this.id}`);
-
-        // destroy the physicalObject
-        if (this.physicalObject) {
-            this.physicsEngine.removeObject(this.physicalObject);
-        }
-
-        // destroy the renderObject
-        if (this.renderObject) {
-            this.renderer.removeObject(this.renderObject);
-        }
-    }
-
     // initalize the physics
     initPhysics(physicsEngine) {
 
-        if (!this.physicalObject) {
-            this.physicsEngine = physicsEngine;
-            this.physicalObject = physicsEngine.addObject(this.id);
-        }
-
+        super.initPhysics(physicsEngine);
         this.physicalObject.position.set(this.x, this.y, this.z);
         this.physicalObject.rotation.set(this.rx, this.ry, this.rz);
         this.physicalObject.__dirtyPosition = true;
