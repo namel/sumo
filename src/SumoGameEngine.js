@@ -35,6 +35,7 @@ class SumoGameEngine extends GameEngine {
     step() {
 
         super.step();
+
         for (var objId in this.world.objects) {
             if (this.world.objects.hasOwnProperty(objId)) {
                 let obj = this.world.objects[objId];

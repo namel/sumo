@@ -4,9 +4,14 @@
         <script src="/socket.io/socket.io.js"></script>
         <script type="text/javascript" src="/src/lib/three.min.js"></script>
         <script type="text/javascript" src="/src/lib/physi.js"></script>
+        <script type="text/javascript">
+            Physijs.scripts.worker = '/src/lib/physijs_worker.js';
+            Physijs.scripts.ammo = '/src/lib/ammo.js';
+        </script>
     </head>
     <body>
         <div id="viewport"></div>
+
         <script type="text/javascript" src="dist/bundle.js"></script>
     </body>
 </html>

@@ -1,19 +1,21 @@
 const SumoGameEngine = require('./SumoGameEngine');
 const SumoClientEngine = require('./SumoClientEngine');
 const SumoRenderer = require('./SumoRenderer');
+const SumoPhysicsEngine = require('./SumoPhysicsEngine.js');
 
-let renderer = new SumoRenderer();
-let gameEngine = new SumoGameEngine({ renderer: renderer});
-let sumoClientEngine = new SumoClientEngine(gameEngine);
-let startEpoch = (new Date()).getTime();
+
+const renderer = new SumoRenderer();
+const physicsEngine = new SumoPhysicsEngine();
+const gameEngine = new SumoGameEngine({ renderer: renderer, physicsEngine: null});
+const sumoClientEngine = new SumoClientEngine(gameEngine);
+const startEpoch = (new Date()).getTime();
+const stepRate = 60; // number of steps per second
+const handleStepInterval = 5;  // at which interval are steps actually handled
 let currentClientStep = 0;
-let stepRate = 60; // number of steps per second
-let handleStepInterval = 5;  // at which interval are steps actually handled
 
 
 // on each render frame
 function clientStep() {
-
 
     let currentEpoch = (new Date()).getTime();
     if (currentEpoch > (startEpoch + currentClientStep * (1000/stepRate))) {
@@ -23,7 +25,6 @@ function clientStep() {
         }
     }
     sumoClientEngine.step();
-
     window.requestAnimationFrame(clientStep);
 }
 

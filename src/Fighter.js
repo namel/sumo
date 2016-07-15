@@ -13,7 +13,7 @@ class Fighter extends THREEPhysicalObject {
     }
 
     constructor(id, x, y, z, rx, ry, rz) {
-        super(id, x, y, z, rx, ry, rz);  // note: calling apply with arguments array doesn't work on constructor
+        super(id, x, y, z, rx, ry, rz); // note: calling apply with arguments array doesn't work on constructor
         this.class = Fighter;
     }
 
@@ -25,24 +25,27 @@ class Fighter extends THREEPhysicalObject {
     initPhysics(physicsEngine) {
 
         super.initPhysics(physicsEngine);
+        this.updatePhysicsObject();
+    }
+
+    // update the physics object with current position/rotation
+    updatePhysicsObject() {
         this.physicalObject.position.set(this.x, this.y, this.z);
         this.physicalObject.rotation.set(this.rx, this.ry, this.rz);
         this.physicalObject.__dirtyPosition = true;
 
-        // console.log(`after refresh this object ${this.id} ${this.x} ${this.y}`);
     }
 
+    // single step for this object
     step(worldSettings) {
 
         //console.log(`before step this object ${this.id} R(${this.x} ${this.y} ${this.z}) V(${this.velX} ${this.velY} ${this.velZ})`);
+        // TODO: is this code still needed?
         if (this.physicalObject) {
             let pos = this.physicalObject.position;
             let rot = this.physicalObject.rotation;
             let vel = this.physicalObject.getLinearVelocity();
 
-            if (this.x !== pos.x) {
-                // console.log(`updating pos vel ${pos.x} ${-pos.z} ${vel.x} ${-vel.z}`);
-            }
             this.x = pos.x;
             this.y = pos.y;
             this.z = pos.z;
@@ -55,10 +58,8 @@ class Fighter extends THREEPhysicalObject {
         }
 
         // handle next move
-        // TODO: we check if we are on server by looking at window.  This is awful
-        //       once we break physicalObject and renderObject this will no longer
-        //       be necessary
-        if (this.nextMove && (typeof window === 'undefined')) {
+        // if we have a local physical object
+        if (this.nextMove && this.physicalObject) {
 
             // console.log(`Fighter processing move ${JSON.stringify(this.nextMove)}`);
             let input = this.nextMove.input;

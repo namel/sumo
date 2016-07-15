@@ -1,0 +1,110 @@
+<html>
+    <head>
+        <title>Sumo wrestling (solo) with(out) Incheon</title>
+        <script type="text/javascript" src="/src/lib/three.min.js"></script>
+        <script type="text/javascript" src="/src/lib/physi.js"></script>
+        <script type="text/javascript">
+            Physijs.scripts.worker = '/src/lib/physijs_worker.js';
+            Physijs.scripts.ammo = '/src/lib/ammo.js';
+        </script>
+    </head>
+    <body>
+        <div id="viewport"></div>
+        <script type="text/javascript">
+
+            // Constants
+            const SUMO_MASS = 6;
+            const FRICTION = 0.9;
+            const RESTITUTION = 0.5;
+
+            // fundamentals
+            this.scene = new Physijs.Scene();
+            this.THREE = THREE;
+            this.Physijs = Physijs;
+
+            // setup camera
+            this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+            this.camera.position.set(0, 35, 40);
+            this.camera.up = new THREE.Vector3(0, 1, 0);
+            this.camera.lookAt(new THREE.Vector3(0, 0, 0));
+            this.scene.add(this.camera);
+
+            // setup light
+            this.scene.add(new THREE.AmbientLight(0x606060));
+            this.pointLight = new THREE.PointLight(0xffffff, 2, 100);
+            this.pointLight.position.set(15, 40, 15);
+            this.pointLight.castShadow = true;
+            this.pointLight.shadowDarkness = 0.15;
+            this.pointLight.shadow.camera.near = 1;
+            this.pointLight.shadow.camera.far = 100;
+            this.pointLight.shadow.bias = 0.01;
+            this.scene.add(this.pointLight);
+
+            // setup the renderer and add the canvas to the body
+            this.renderer = new THREE.WebGLRenderer({
+                antialias: true
+            });
+            this.renderer.setPixelRatio(window.devicePixelRatio);
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
+            this.renderer.shadowMap.enabled = true;
+            this.renderer.shadowMap.type = THREE.BasicShadowMap;
+            document.getElementById('viewport').appendChild(this.renderer.domElement);
+
+            // a local raycaster
+            this.raycaster = new THREE.Raycaster();
+
+            let floorMaterial = this.Physijs.createMaterial(
+                new this.THREE.MeshPhongMaterial({
+                    color: 0xde761a,
+                    wireframe: false,
+                    shininess: 30
+                }),
+                FRICTION,
+                RESTITUTION
+            );
+            this.floor = new this.Physijs.CylinderMesh(
+                new this.THREE.CylinderGeometry(20, 18, 30, 64),
+                floorMaterial,
+                0); // gravity = 0 sets a fixed floor
+            this.floor.position.set(0, -4, 0);
+            this.floor.receiveShadow = true;
+            this.scene.add(this.floor);
+
+            // generate a color which is random but not dark
+            let r = Math.random();
+            let g = Math.random();
+            let b = Math.max(0, 1 - r - g);
+            let objColor = new this.THREE.Color(r, g, b);
+
+            // create the physical object
+            console.log(`adding physics object`);
+            let sphereGeometry = new this.THREE.SphereGeometry(2, 16, 16, 0, Math.PI * 2, 0, Math.PI * 2);
+            let sphereMaterial = this.Physijs.createMaterial(
+                new this.THREE.MeshPhongMaterial({
+                    color: objColor,
+                    wireframe: true,
+                    shininess: 10
+                }),
+                FRICTION,
+                RESTITUTION
+            );
+            let sphere = new this.Physijs.SphereMesh(sphereGeometry, sphereMaterial, SUMO_MASS);
+            sphere.castShadow = true;
+            sphere.receiveShadow = true;
+            sphere.position.set(Math.random() * 20 - 10, 25, Math.random() * 20 - 10);
+            this.scene.add(sphere);
+
+
+            // on each render frame
+            function clientStep() {
+                // console.log('spherey=' + sphere.position.y)
+                this.scene.simulate();
+                this.renderer.render(this.scene, this.camera);
+
+                window.requestAnimationFrame(clientStep);
+            }
+            window.requestAnimationFrame(clientStep);
+
+        </script>
+    </body>
+</html>

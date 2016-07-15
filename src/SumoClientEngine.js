@@ -68,7 +68,7 @@ class SumoClientEngine extends ClientEngine {
         if (!previousWorld || !nextWorld)
             return;
 
-        // step 1: create new objects, interpolate existing objects
+        // create new objects, interpolate existing objects
         for (let objId in nextWorld.objects) {
             if (nextWorld.objects.hasOwnProperty(objId)) {
                 let prevObj = previousWorld.objects[objId];
@@ -81,28 +81,51 @@ class SumoClientEngine extends ClientEngine {
                 }
 
                 // if the object is new, add it
-                if (!this.gameEngine.world.objects.hasOwnProperty(objId)) {
+                if (!world.objects.hasOwnProperty(objId)) {
                     console.log(`adding new object ${objId} at (${nextObj.x},${nextObj.y},${nextObj.z}) velocity (${nextObj.velX},${nextObj.velY},${nextObj.velZ})`);
                     curObj = world.objects[objId] = new Fighter(objId, nextObj.x, nextObj.y, nextObj.z, 0, 0, 0);
                     curObj.init({
                         velX: nextObj.velX,
                         velY: nextObj.velY,
                         velZ: nextObj.velZ,
+
+                        // TODO: the comparison below cannot be '===' because:
+                        //       curObj.id = "1"
+                        //       nextObj.id = 1
                         isPlayerControlled: (this.playerId == nextObj.id)
                     });
                     curObj.initRender(this.gameEngine.renderer);
+
+                    // if this game keeps a physics engine on the client side,
+                    // we need to update it as well
+                    if (this.gameEngine.physicsEngine) {
+                        curObj.initPhysics(this.gameEngine.physicsEngine);
+                    }
                 }
 
-                // update positions with interpolation
+                // handle step for this object
                 curObj = world.objects[objId];
-                var playPercentage = (stepToPlay - previousWorld.stepCount) / (nextWorld.stepCount - previousWorld.stepCount);
-                if (typeof curObj.syncInterpolated === 'function') {
-                    curObj.syncInterpolated(prevObj, nextObj, playPercentage)
+                if (curObj.isPlayerControlled && curObj.physicalObject) {
+
+                    // if the object is the self, update render position/rotation from physics
+                    curObj.updateRenderObject();
+                } else {
+                    // update positions with interpolation
+                    var playPercentage = (stepToPlay - previousWorld.stepCount) / (nextWorld.stepCount - previousWorld.stepCount);
+                    if (typeof curObj.syncInterpolated === 'function') {
+                        curObj.syncInterpolated(prevObj, nextObj, playPercentage);
+
+                        // if this object has a physics sub-object, it must inherit
+                        // the position now.
+                        if (curObj.physicalObject && typeof curObj.updatePhysicsObject) {
+                            curObj.updatePhysicsObject();
+                        }
+                    }
                 }
             }
         }
 
-        // step 2: destroy unneeded objects
+        // destroy unneeded objects
         for (let objId in previousWorld.objects) {
             if (previousWorld.objects.hasOwnProperty(objId) && !nextWorld.objects.hasOwnProperty(objId)) {
 
