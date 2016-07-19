@@ -2,12 +2,14 @@ const SumoGameEngine = require('./SumoGameEngine');
 const SumoClientEngine = require('./SumoClientEngine');
 const SumoRenderer = require('./SumoRenderer');
 const SumoPhysicsEngine = require('./SumoPhysicsEngine.js');
+const InterpolateStrategy = require('incheon').syncStrategies.InterpolateStrategy;
 
 
 const renderer = new SumoRenderer();
 const physicsEngine = new SumoPhysicsEngine();
 const gameEngine = new SumoGameEngine({ renderer: renderer, physicsEngine: null});
 const sumoClientEngine = new SumoClientEngine(gameEngine);
+const strategy = new InterpolateStrategy(sumoClientEngine, {});
 const startEpoch = (new Date()).getTime();
 const stepRate = 60; // number of steps per second
 const handleStepInterval = 5;  // at which interval are steps actually handled

@@ -12,6 +12,11 @@ class Fighter extends THREEPhysicalObject {
         }
     }
 
+    static newFrom(sourceObj){
+
+        return new Fighter(sourceObj.id, sourceObj.x, sourceObj.y, sourceObj.z, sourceObj.rx, sourceObj.ry, sourceObj.rz);
+    }
+
     constructor(id, x, y, z, rx, ry, rz) {
         super(id, x, y, z, rx, ry, rz); // note: calling apply with arguments array doesn't work on constructor
         this.class = Fighter;
