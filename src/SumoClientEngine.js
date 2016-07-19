@@ -28,8 +28,8 @@ class SumoClientEngine extends ClientEngine {
                 x: (event.clientX / window.innerWidth) * 2 - 1,
                 y: -(event.clientY / window.innerHeight) * 2 + 1
             }
-            console.log(`click event: `, event);
-            console.log(`click x-y = (${that.touchData.x},${that.touchData.y})`);
+            // console.log(`click event: `, event);
+            // console.log(`click x-y = (${that.touchData.x},${that.touchData.y})`);
         }, false);
     }
 
@@ -94,12 +94,12 @@ class SumoClientEngine extends ClientEngine {
                         //       nextObj.id = 1
                         isPlayerControlled: (this.playerId == nextObj.id)
                     });
-                    curObj.initRender(this.gameEngine.renderer);
+                    curObj.initRenderObject(this.gameEngine.renderer);
 
                     // if this game keeps a physics engine on the client side,
                     // we need to update it as well
                     if (this.gameEngine.physicsEngine) {
-                        curObj.initPhysics(this.gameEngine.physicsEngine);
+                        curObj.initPhysicsObject(this.gameEngine.physicsEngine);
                     }
                 }
 
@@ -112,8 +112,8 @@ class SumoClientEngine extends ClientEngine {
                 } else {
                     // update positions with interpolation
                     var playPercentage = (stepToPlay - previousWorld.stepCount) / (nextWorld.stepCount - previousWorld.stepCount);
-                    if (typeof curObj.syncInterpolated === 'function') {
-                        curObj.syncInterpolated(prevObj, nextObj, playPercentage);
+                    if (typeof curObj.interpolate === 'function') {
+                        curObj.interpolate(prevObj, nextObj, playPercentage);
 
                         // if this object has a physics sub-object, it must inherit
                         // the position now.
@@ -145,7 +145,7 @@ class SumoClientEngine extends ClientEngine {
         if (this.touchData) {
             let input = this.gameEngine.renderer.calculateImpulse(this.touchData.x, this.touchData.y, this.gameEngine.world.objects[this.playerId]);
             if (input) {
-                console.log(`sending input to server ${JSON.stringify(input)}`);
+                // console.log(`sending input to server ${JSON.stringify(input)}`);
                 this.sendInput(input);
             }
             this.touchData = null;

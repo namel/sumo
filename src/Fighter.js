@@ -22,9 +22,9 @@ class Fighter extends THREEPhysicalObject {
     }
 
     // initalize the physics
-    initPhysics(physicsEngine) {
+    initPhysicsObject(physicsEngine) {
 
-        super.initPhysics(physicsEngine);
+        super.initPhysicsObject(physicsEngine);
         this.updatePhysicsObject();
     }
 
@@ -63,15 +63,15 @@ class Fighter extends THREEPhysicalObject {
 
             // console.log(`Fighter processing move ${JSON.stringify(this.nextMove)}`);
             let input = this.nextMove.input;
-            var moveDirection = new this.physicsEngine.THREE.Vector3(input.x, 0, input.z);
+            let moveDirection = new this.physicsEngine.THREE.Vector3(input.x, 0, input.z);
 
             // apply a central impulse
             moveDirection.normalize().multiplyScalar(IMPULSE_STRENGTH);
-            console.log(`applying impulse towards ${JSON.stringify(moveDirection)}`);
-            this.physicalObject.applyCentralImpulse(moveDirection)
+            // console.log(`applying impulse towards ${JSON.stringify(moveDirection)}`);
+            this.physicalObject.applyCentralImpulse(moveDirection);
             this.nextMove = null;
         }
-        //console.log(`after step this object ${this.id} R(${this.x} ${this.y} ${this.z}) V(${this.velX} ${this.velY} ${this.velZ})`);
+        // console.log(`after step this object ${this.id} R(${this.x} ${this.y} ${this.z}) V(${this.velX} ${this.velY} ${this.velZ})`);
     }
 }
 

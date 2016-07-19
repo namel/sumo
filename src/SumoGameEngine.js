@@ -36,6 +36,8 @@ class SumoGameEngine extends GameEngine {
 
         super.step();
 
+        // on server-side:
+        // decide if fighter has died
         for (var objId in this.world.objects) {
             if (this.world.objects.hasOwnProperty(objId)) {
                 let obj = this.world.objects[objId];
@@ -60,7 +62,7 @@ class SumoGameEngine extends GameEngine {
         let x = Math.random() * 20 - 10;
         let z = Math.random() * 20 - 10;
         var fighter = new Fighter(newGuy.playerId, x, 25, z, 0, 0, 0);
-        fighter.initPhysics(this.physicsEngine);
+        fighter.initPhysicsObject(this.physicsEngine);
         this.world.objects[newGuy.playerId] = fighter;
         console.log(`created Fighter#${newGuy.playerId} at ${fighter.x},${fighter.y},${fighter.z}`);
 
