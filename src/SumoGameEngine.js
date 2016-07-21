@@ -71,7 +71,7 @@ class SumoGameEngine extends GameEngine {
 
     processInput(inputData, playerId){
 
-        //console.log(`game engine processing player[${playerId}] ${JSON.stringify(inputData)}`);
+        // console.log(`game engine processing player[${playerId}] ${JSON.stringify(inputData)}`);
         var fighter = this.world.objects[playerId];
 
         if (fighter)
