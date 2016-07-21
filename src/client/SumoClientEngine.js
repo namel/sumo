@@ -1,5 +1,5 @@
 const ClientEngine = require('incheon').ClientEngine;
-const Fighter = require('./Fighter');
+const Fighter = require('../common/Fighter');
 
 
 // The Sumo client-side engine

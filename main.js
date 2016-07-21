@@ -23,8 +23,8 @@ const io = socketIO(requestHandler);
 
 // get game classes
 const ServerEngine = require('incheon').ServerEngine;
-const SumoGameEngine = require(path.join(__dirname, 'src/SumoGameEngine.js'));
-const SumoPhysicsEngine = require(path.join(__dirname, 'src/SumoPhysicsEngine.js'));
+const SumoGameEngine = require('./src/common/SumoGameEngine.js');
+const SumoPhysicsEngine = require('./src/common/SumoPhysicsEngine.js');
 
 // create instances
 const physicsEngine = new SumoPhysicsEngine();

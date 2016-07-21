@@ -1,7 +1,7 @@
-const SumoGameEngine = require('./SumoGameEngine');
+const SumoGameEngine = require('../common/SumoGameEngine');
 const SumoClientEngine = require('./SumoClientEngine');
 const SumoRenderer = require('./SumoRenderer');
-const SumoPhysicsEngine = require('./SumoPhysicsEngine.js');
+const SumoPhysicsEngine = require('../common/SumoPhysicsEngine.js');
 const InterpolateStrategy = require('incheon').syncStrategies.InterpolateStrategy;
 
 
