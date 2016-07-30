@@ -10,6 +10,7 @@
     "socket.io": "^1.4.6"
   },
   "devDependencies": {
+    "babelify": "^7.3.0",
     "watchify": "^3.7.0"
   },
   "scripts": {

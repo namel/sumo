@@ -1,6 +1,6 @@
 "use strict";
 
-const THREEPhysicalObject = require('incheon').composables.THREEPhysicalObject;
+const THREEPhysicalObject = require('incheon').serialize.THREEPhysicalObject;
 const IMPULSE_STRENGTH = 20;
 
 class Fighter extends THREEPhysicalObject {
