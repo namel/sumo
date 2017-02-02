@@ -1,4 +1,5 @@
 'use strict';
+
 const GameEngine = require('incheon').GameEngine;
 const Fighter = require('./Fighter');
 
@@ -10,12 +11,13 @@ class SumoGameEngine extends GameEngine {
 
         // TODO: clean-up this/that by binding all functions to this?
         let that = this;
-        this.on('server.playerJoined', this.makeFighter.bind(this));
-        this.on('server.playerDisconnected', this.removeFighter.bind(this));
+        this.on('server__playerJoined', this.makeFighter.bind(this));
+        this.on('server__playerDisconnected', this.removeFighter.bind(this));
+        this.on('server__init', this.gameInit.bind(this));
     }
 
     gameInit() {
-        let this.sumoRing = new SumoRing(++this.world.idCount, x, 25, z, 0, 0, 0);
+        this.sumoRing = new SumoRing(++this.world.idCount, x, 25, z, 0, 0, 0);
         this.addObjectToWorld(fighter);
     }
 
