@@ -5,8 +5,9 @@ const RADIUS = 10;
 
 class Fighter extends PhysicalObject {
 
-    constructor(id, gameEngine, x, y, z) {
-        super(id, x, y, z);
+    constructor(id, gameEngine, position) {
+
+        super(id, position);
         this.class = Fighter;
         this.gameEngine = gameEngine;
 
@@ -14,7 +15,9 @@ class Fighter extends PhysicalObject {
         this.physicsObj = gameEngine.physicsEngine.addSphere(RADIUS);
 
         // create the render object
-        this.renderObj = gameEngine.renderer.addSphere(RADIUS);
+        if (gameEngine.renderer)
+            this.renderObj = gameEngine.renderer.addSphere(RADIUS);
+
     }
 
     toString() {
@@ -23,7 +26,8 @@ class Fighter extends PhysicalObject {
 
     destroy() {
         this.gameEngine.physicsEngine.removeObject(this.physicsObj);
-        this.gameEngine.renderer.removeObject(this.renderObj);
+        if (this.renderObj)
+            this.gameEngine.renderer.removeObject(this.renderObj);
     }
 
 }

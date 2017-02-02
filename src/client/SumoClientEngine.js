@@ -1,7 +1,5 @@
 const ClientEngine = require('incheon').ClientEngine;
 const SumoRenderer = require('./SumoRenderer');
-const Fighter = require('../common/Fighter');
-
 
 // The Sumo client-side engine
 class SumoClientEngine extends ClientEngine {
@@ -9,6 +7,10 @@ class SumoClientEngine extends ClientEngine {
     // constructor
     constructor(gameEngine, options) {
         super(gameEngine, options);
+
+        this.renderer = this.gameEngine.renderer = new SumoRenderer(gameEngine, this);
+        this.serializer.registerClass(require('../common/Fighter'));
+        this.serializer.registerClass(require('../common/SumoRing'));
         this.gameEngine.on('client.preStep', this.processInputs.bind(this));
     }
 

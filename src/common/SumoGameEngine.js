@@ -2,23 +2,21 @@
 
 const GameEngine = require('incheon').GameEngine;
 const Fighter = require('./Fighter');
+const SumoRing = require('./SumoRing');
 
 class SumoGameEngine extends GameEngine {
 
     constructor(options) {
         super(options);
-        this.registerClass(Fighter);
 
-        // TODO: clean-up this/that by binding all functions to this?
-        let that = this;
         this.on('server__playerJoined', this.makeFighter.bind(this));
         this.on('server__playerDisconnected', this.removeFighter.bind(this));
         this.on('server__init', this.gameInit.bind(this));
     }
 
     gameInit() {
-        this.sumoRing = new SumoRing(++this.world.idCount, x, 25, z, 0, 0, 0);
-        this.addObjectToWorld(fighter);
+        this.sumoRing = new SumoRing(++this.world.idCount, this, 0, 0, 0);
+        this.addObjectToWorld(this.sumoRing);
     }
 
     start() {
@@ -61,7 +59,8 @@ class SumoGameEngine extends GameEngine {
         // create a fighter for this client
         let x = Math.random() * 20 - 10;
         let z = Math.random() * 20 - 10;
-        let fighter = new Fighter(++this.world.idCount, x, 25, z, 0, 0, 0);
+        let position = new ThreeVector(x, 25, z);
+        let fighter = new Fighter(++this.world.idCount, this, position);
         fighter.playerId = player.playerId;
         this.addObjectToWorld(fighter);
 

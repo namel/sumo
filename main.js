@@ -16,14 +16,14 @@ const requestHandler = server.listen(PORT, () => console.log(`Listening on ${POR
 const io = socketIO(requestHandler);
 
 // get game classes
-const ServerEngine = require('incheon').ServerEngine;
+const SumoServerEngine = require('./src/server/SumoServerEngine.js');
 const SumoGameEngine = require('./src/common/SumoGameEngine.js');
 const CannonPhysicsEngine = require('incheon').physics.CannonPhysicsEngine;
 
 // create instances
 const physicsEngine = new CannonPhysicsEngine();
 const gameEngine = new SumoGameEngine({ physicsEngine, traceLevel: 1 });
-const serverEngine = new ServerEngine(io, gameEngine, { debug: {}, updateRate: 6 });
+const serverEngine = new SumoServerEngine(io, gameEngine, { debug: {}, updateRate: 6 });
 
 
 // start the game

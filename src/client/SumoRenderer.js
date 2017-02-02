@@ -5,8 +5,8 @@ const Renderer = require('incheon').render.Renderer;
 class SumoRenderer extends Renderer {
 
     // constructor
-    constructor() {
-        super();
+    constructor(gameEngine, clientEngine) {
+        super(gameEngine, clientEngine);
         this.scene = null;
         this.camera = null;
         this.renderer = null;
@@ -51,8 +51,7 @@ class SumoRenderer extends Renderer {
         // a local raycaster
         this.raycaster = new THREE.Raycaster();
 
-
-
+        return Promise.resolve();
     }
 
     // given a point on the camera (screen click)
@@ -76,13 +75,6 @@ class SumoRenderer extends Renderer {
 
     // single step
     draw() {
-
-        // copy new positions from game world
-        for(let i = 0; i !== meshes.length; i++) {
-            meshes[i].position.copy(bodies[i].position);
-            meshes[i].quaternion.copy(bodies[i].quaternion);
-        }
-
         super.draw();
         this.renderer.render(this.scene, this.camera);
     }
