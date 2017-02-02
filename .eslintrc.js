@@ -5,10 +5,18 @@ module.exports = {
         "ecmaVersion": 6
     },
     "rules": {
-        "comma-dangle": 0,
+        "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
+        "comma-dangle": "off",
+        "guard-for-in": "off",
         "indent": ["error", 4],
-        "linebreak-style": [2, "unix"],
-        "no-console": 0
+        "linebreak-style": ["error", "unix"],
+        "max-len": "off",
+        "max-statements-per-line": ["error", { "max": 2 }],
+        "no-console": "off",
+        "no-warning-comments": "off",
+        "object-curly-spacing": ["error", "always"],
+        "padded-blocks": "off",
+        "require-jsdoc": "off"
     }
 
 };

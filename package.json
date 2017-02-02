@@ -1,16 +1,22 @@
 {
   "name": "sumo",
   "version": "1.0.0",
-  "description": "A sample mmog using on Incheon",
+  "engines": {
+    "node": "4.3.0"
+  },
+  "description": "A sample 3D multiplayer using on Incheon",
   "main": "main.js",
   "dependencies": {
-    "incheon": "Opherv/Incheon.git",
     "browserify": "^13.0.1",
     "express": "^4.14.0",
-    "socket.io": "^1.4.6"
+    "incheon": "Opherv/Incheon.git",
+    "query-string": "^4.2.3",
+    "socket.io": "^1.4.8"
   },
   "devDependencies": {
     "babelify": "^7.3.0",
+    "eslint": "^3.14.1",
+    "eslint-config-google": "^0.7.1",
     "watchify": "^3.7.0"
   },
   "scripts": {

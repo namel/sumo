@@ -1,24 +1,22 @@
-"use strict";
+'use strict';
 const GameEngine = require('incheon').GameEngine;
 const Fighter = require('./Fighter');
-const Point= require('incheon').Point;
 
 class SumoGameEngine extends GameEngine {
 
     constructor(options) {
         super(options);
         this.registerClass(Fighter);
-        this.isServer = !!this.options.isServer;  // this was needed for the authority to kill player
 
         // TODO: clean-up this/that by binding all functions to this?
-        var that = this;
+        let that = this;
         this.on('server.playerJoined', this.makeFighter.bind(this));
-        this.on('server.playerDisconnected', function(e) {
-            delete that.world.objects[e.playerId];
-        });
-        this.on('server.inputReceived', function(e) {
-            that.processInput(e.input, e.playerId);
-        })
+        this.on('server.playerDisconnected', this.removeFighter.bind(this));
+    }
+
+    gameInit() {
+        let this.sumoRing = new SumoRing(++this.world.idCount, x, 25, z, 0, 0, 0);
+        this.addObjectToWorld(fighter);
     }
 
     start() {
@@ -29,7 +27,8 @@ class SumoGameEngine extends GameEngine {
             width: 800,
             height: 600
         };
-    };
+    }
+
 
     // the Sumo Game Engine Step.
     step() {
@@ -38,45 +37,50 @@ class SumoGameEngine extends GameEngine {
 
         // on server-side:
         // decide if fighter has died
-        for (var objId in this.world.objects) {
-            if (this.world.objects.hasOwnProperty(objId)) {
-                let obj = this.world.objects[objId];
-                if (this.isServer && obj.y < -100) {
-                    console.log(`object ${objId} has fallen off the board`);
-                    obj.destroy();
-                    delete this.world.objects[objId];
-                    this.makeFighter({playerId: objId});
-                }
+        for (let objId of Object.keys(this.world.objects)) {
+            let obj = this.world.objects[objId];
+            if (this.isServer && obj.y < -100) {
+                console.log(`object ${objId} has fallen off the board`);
+                this.resetFighter({ playerId: objId });
             }
         }
-    };
+    }
+
+    resetFighter(fighter) {
+        fighter.x = Math.random() * 20 - 10;
+        fighter.y = Math.random() * 20 - 10;
+        fighter.initPhysicsObject(this.physicsEngine);
+        console.log(`reset Fighter#${newGuy.playerId} at ${fighter.x},${fighter.y},${fighter.z}`);
+    }
 
     // server-side function to add a new player
-    makeFighter(newGuy) {
-        if (newGuy.playerId in this.world.objects){
-            console.log("error, object with id ", newGuy.playerId, " already exists");
-            return null;
-        }
+    makeFighter(player) {
 
         // create a fighter for this client
         let x = Math.random() * 20 - 10;
         let z = Math.random() * 20 - 10;
-        var fighter = new Fighter(newGuy.playerId, x, 25, z, 0, 0, 0);
-        fighter.initPhysicsObject(this.physicsEngine);
-        this.world.objects[newGuy.playerId] = fighter;
-        console.log(`created Fighter#${newGuy.playerId} at ${fighter.x},${fighter.y},${fighter.z}`);
+        let fighter = new Fighter(++this.world.idCount, x, 25, z, 0, 0, 0);
+        fighter.playerId = player.playerId;
+        this.addObjectToWorld(fighter);
 
         return fighter;
-    };
+    }
 
-    processInput(inputData, playerId){
+    removeFighter(player) {
+        let o = this.world.getPlayerObject(player.playerId);
+        this.removeObjectFromWorld(o);
+    }
 
-        // console.log(`game engine processing player[${playerId}] ${JSON.stringify(inputData)}`);
-        var fighter = this.world.objects[playerId];
+    processInput(inputData, playerId) {
 
-        if (fighter)
-            fighter.nextMove = inputData;
-    };
+        super.processInput(inputData, playerId);
+
+        // apply a central impulse
+        let moveDirection = new this.physicsEngine.THREE.Vector3(inputData.input.x, 0, inputData.input.z);
+        moveDirection.normalize().multiplyScalar(IMPULSE_STRENGTH);
+        let playerSumo = this.world.getPlayerObject(playerId);
+        playerSumo.sphere.applyCentralImpulse(moveDirection);
+    }
 
 }
 

@@ -1,4 +1,5 @@
 const ClientEngine = require('incheon').ClientEngine;
+const SumoRenderer = require('./SumoRenderer');
 const Fighter = require('../common/Fighter');
 
 
@@ -6,9 +7,8 @@ const Fighter = require('../common/Fighter');
 class SumoClientEngine extends ClientEngine {
 
     // constructor
-    constructor(gameEngine) {
-        super(gameEngine);
-        this.verbose = true;
+    constructor(gameEngine, options) {
+        super(gameEngine, options);
         this.gameEngine.on('client.preStep', this.processInputs.bind(this));
     }
 
@@ -19,15 +19,14 @@ class SumoClientEngine extends ClientEngine {
 
         //  Game input
         let that = this;
-        var el = document.getElementsByTagName("body")[0];
-        el.addEventListener("click", function(event) {
+        let el = document.getElementsByTagName('body')[0];
+        el.addEventListener('click', function(event) {
 
             that.touchData = {
                 x: (event.clientX / window.innerWidth) * 2 - 1,
                 y: -(event.clientY / window.innerHeight) * 2 + 1
-            }
-            // console.log(`click event: `, event);
-            // console.log(`click x-y = (${that.touchData.x},${that.touchData.y})`);
+            };
+
         }, false);
     }
 

@@ -1,44 +1,27 @@
-const SumoGameEngine = require('../common/SumoGameEngine');
+const qsOptions = require('query-string').parse(location.search);
 const SumoClientEngine = require('./SumoClientEngine');
-const SumoRenderer = require('./SumoRenderer');
-const InterpolateStrategy = require('incheon').syncStrategies.InterpolateStrategy;
-const FrameSyncStrategy = require('incheon').syncStrategies.FrameSyncStrategy;
+const SumoGameEngine = require('../common/SumoGameEngine');
+const CannonPhysicsEngine = require('incheon').physics.CannonPhysicsEngine;
 
-
-// to test client-side physics engine, uncomment the lines below
-// const SumoPhysicsEngine = require('../common/SumoPhysicsEngine.js');
-// let physicsEngine = new SumoPhysicsEngine();
+// default options, overwritten by query-string options
+// is sent to both game engine and client engine
+const defaults = {
+    traceLevel: 1,
+    delayInputCount: 3,
+    clientIDSpace: 1000000,
+    syncOptions: {
+        sync: qsOptions.sync || 'extrapolate',
+        localObjBending: 0.0,
+        remoteObjBending: 0.8,
+        bendingIncrements: 6
+    }
+};
+let options = Object.assign(defaults, qsOptions);
 
 // create the singletons
-const renderer = new SumoRenderer();
-const gameEngine = new SumoGameEngine({ renderer, physicsEngine: null });
-const sumoClientEngine = new SumoClientEngine(gameEngine);
-const startEpoch = (new Date()).getTime();
-const stepRate = 60; // number of steps per second
-const handleStepInterval = 5;  // at which interval are steps actually handled
-let currentClientStep = 0;
+const physicsEngine = new CannonPhysicsEngine();
+const gameOptions = Object.assign({ physicsEngine }, options);
+const gameEngine = new SumoGameEngine(gameOptions);
+const clientEngine = new SumoClientEngine(gameEngine, options);
 
-// choose synchronization strategy
-if (window.location.search && window.location.search.indexOf('frameSyncMode') >= 0) {
-    new FrameSyncStrategy(sumoClientEngine, {});
-} else {
-    new InterpolateStrategy(sumoClientEngine, {});
-}
-
-// on each render frame
-function clientStep() {
-    let currentEpoch = (new Date()).getTime();
-    if (currentEpoch > (startEpoch + currentClientStep * (1000/stepRate))) {
-        currentClientStep++;
-        if (currentClientStep % handleStepInterval === 0) {
-            //sumoClientEngine.step();
-        }
-    }
-    sumoClientEngine.step();
-    window.requestAnimationFrame(clientStep);
-}
-
-
-// start the client and kick off the infinite render loop
-sumoClientEngine.start();
-window.requestAnimationFrame(clientStep);
+document.addEventListener('DOMContentLoaded', function(e) { clientEngine.start(); });

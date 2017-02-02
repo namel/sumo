@@ -1,9 +1,6 @@
-"use strict";
+'use strict';
 
 const Renderer = require('incheon').render.Renderer;
-const SUMO_MASS = 6;
-const FRICTION = 0.9;
-const RESTITUTION = 0.5;
 
 class SumoRenderer extends Renderer {
 
@@ -23,7 +20,7 @@ class SumoRenderer extends Renderer {
         console.log('setting up client-side scene');
 
         // setup the scene
-        this.scene = new Physijs.Scene();
+        this.scene = new THREE.Scene();
 
         // setup camera
         this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -44,9 +41,7 @@ class SumoRenderer extends Renderer {
         this.scene.add(this.pointLight);
 
         // setup the renderer and add the canvas to the body
-        this.renderer = new THREE.WebGLRenderer({
-            antialias: true
-        });
+        this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.shadowMap.enabled = true;
@@ -58,30 +53,10 @@ class SumoRenderer extends Renderer {
 
 
 
-        // common objects
-        // setup floor
-        let floorMaterial = Physijs.createMaterial(
-            new THREE.MeshPhongMaterial({
-                color: 0xde761a,
-                wireframe: false,
-                shininess: 30
-            }),
-            FRICTION,
-            RESTITUTION
-        );
-        this.floor = new Physijs.CylinderMesh(
-            new THREE.CylinderGeometry(20, 18, 30, 64),
-            floorMaterial,
-            0); // gravity = 0 sets a fixed floor
-        this.floor.position.set(0, -4, 0);
-        this.floor.receiveShadow = true;
-        this.scene.add(this.floor);
-
     }
 
     // given a point on the camera (screen click)
     // calculate a corresponding impulse
-    // TODO: consider making this function available in the base class
     calculateImpulse(x, y, selfObj) {
         let mouse = new THREE.Vector2(x, y);
         this.raycaster.setFromCamera(mouse, this.camera);
@@ -101,12 +76,19 @@ class SumoRenderer extends Renderer {
 
     // single step
     draw() {
+
+        // copy new positions from game world
+        for(let i = 0; i !== meshes.length; i++) {
+            meshes[i].position.copy(bodies[i].position);
+            meshes[i].quaternion.copy(bodies[i].quaternion);
+        }
+
         super.draw();
         this.renderer.render(this.scene, this.camera);
     }
 
     // add one object: a single sphere
-    addObject(id) {
+    addSphere(radius) {
 
         // generate a color which is random but not dark
         let r = Math.random();
@@ -114,23 +96,33 @@ class SumoRenderer extends Renderer {
         let b = Math.max(0, 1 - r - g);
         let objColor = new THREE.Color(r, g, b);
 
-        // create the physical object
-        console.log(`adding object in 3D with id${id} color${JSON.stringify(objColor)}`);
-        let sphereGeometry = new THREE.SphereGeometry(2, 16, 16, 0, Math.PI * 2, 0, Math.PI * 2);
-        let sphereMaterial = Physijs.createMaterial(
-            new THREE.MeshPhongMaterial({
-                color: objColor,
-                wireframe: true,
-                shininess: 10
-            }),
-            FRICTION,
-            RESTITUTION
-        );
-        let sphere = new Physijs.SphereMesh(sphereGeometry, sphereMaterial, SUMO_MASS);
+        // create the visual object
+        let sphereGeometry = new THREE.SphereGeometry(radius, 16, 16, 0, Math.PI * 2, 0, Math.PI * 2);
+        let sphereMaterial = new THREE.MeshPhongMaterial({
+            color: objColor,
+            wireframe: true,
+            shininess: 10
+        });
+        let sphere = new THREE.SphereMesh(sphereGeometry, sphereMaterial);
         sphere.castShadow = true;
         sphere.receiveShadow = true;
         this.scene.add(sphere);
         return sphere;
+    }
+
+    addRing(radiusTop, radiusBottom, height, radiusSegments) {
+        // setup floor
+        let floorMaterial = new THREE.MeshPhongMaterial({
+            color: 0xde761a,
+            wireframe: false,
+            shininess: 30
+        });
+        this.floor = new THREE.CylinderMesh(
+            new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radiusSegments),
+            floorMaterial);
+        this.floor.position.set(0, -4, 0);
+        this.floor.receiveShadow = true;
+        this.scene.add(this.floor);
     }
 
     removeObject(o) {
