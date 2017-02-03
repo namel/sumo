@@ -22,11 +22,11 @@ class SumoRing extends PhysicalObject {
 
         // create the render object
         if (gameEngine.renderer)
-            this.renderObj = gameEngine.renderer.addSumoRing(RADIUS_TOP, RADIUS_BOTTOM, HEIGHT, RADIUS_SEGMENTS);
+            this.renderObj = gameEngine.renderer.addSumoRing(position, RADIUS_TOP, RADIUS_BOTTOM, HEIGHT, RADIUS_SEGMENTS);
     }
 
     toString() {
-        return `Fighter::${super.toString()}`;
+        return `SumoRing::${super.toString()}`;
     }
 
     destroy() {

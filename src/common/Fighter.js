@@ -16,10 +16,11 @@ class Fighter extends PhysicalObject {
         // create the physics body
         this.gameEngine = gameEngine;
         this.physicsObj = gameEngine.physicsEngine.addSphere(RADIUS);
+        this.physicsObj.position.copy(this.position);
 
         // create the render object
         if (gameEngine.renderer)
-            this.renderObj = gameEngine.renderer.addSumoFighter(RADIUS);
+            this.renderObj = gameEngine.renderer.addSumoFighter(position, RADIUS);
     }
 
     toString() {

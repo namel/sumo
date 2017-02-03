@@ -16,7 +16,8 @@ class SumoGameEngine extends GameEngine {
     }
 
     gameInit() {
-        this.sumoRing = new SumoRing(++this.world.idCount, this, 0, 0, 0);
+        this.sumoRing = new SumoRing(++this.world.idCount, this);
+        this.sumoRing.position.y = -4;
         this.addObjectToWorld(this.sumoRing);
     }
 
@@ -70,7 +71,7 @@ class SumoGameEngine extends GameEngine {
 
     removeFighter(player) {
         let o = this.world.getPlayerObject(player.playerId);
-        this.removeObjectFromWorld(o);
+        this.removeObjectFromWorld(o.id);
     }
 
     processInput(inputData, playerId) {

@@ -80,7 +80,7 @@ class SumoRenderer extends Renderer {
     }
 
     // add one object: a single sphere
-    addSumoFighter(radius) {
+    addSumoFighter(position, radius) {
 
         // generate a color which is random but not dark
         let r = Math.random();
@@ -98,11 +98,12 @@ class SumoRenderer extends Renderer {
         let sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
         sphere.castShadow = true;
         sphere.receiveShadow = true;
+        sphere.position.copy(position);
         this.scene.add(sphere);
         return sphere;
     }
 
-    addSumoRing(radiusTop, radiusBottom, height, radiusSegments) {
+    addSumoRing(position, radiusTop, radiusBottom, height, radiusSegments) {
         // setup floor
         let floorMaterial = new THREE.MeshPhongMaterial({
             color: 0xde761a,
@@ -112,7 +113,7 @@ class SumoRenderer extends Renderer {
         this.floor = new THREE.Mesh(
             new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radiusSegments),
             floorMaterial);
-        this.floor.position.set(0, -4, 0);
+        this.floor.position.copy(position);
         this.floor.receiveShadow = true;
         this.scene.add(this.floor);
 

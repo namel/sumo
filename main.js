@@ -22,7 +22,7 @@ const CannonPhysicsEngine = require('incheon').physics.CannonPhysicsEngine;
 
 // create instances
 const physicsEngine = new CannonPhysicsEngine();
-const gameEngine = new SumoGameEngine({ physicsEngine, traceLevel: 1 });
+const gameEngine = new SumoGameEngine({ physicsEngine, traceLevel: 0 });
 const serverEngine = new SumoServerEngine(io, gameEngine, { debug: {}, updateRate: 6 });
 
 
