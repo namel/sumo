@@ -15,7 +15,7 @@ class SumoClientEngine extends ClientEngine {
         this.serializer.registerClass(require('../common/SumoRing'));
         this.serializer.registerClass(require('incheon').serialize.ThreeVector);
         this.serializer.registerClass(require('incheon').serialize.FourVector);
-        this.gameEngine.on('client.preStep', this.processInputs.bind(this));
+        this.gameEngine.on('client__preStep', this.processInputs.bind(this));
     }
 
     // start then client engine
