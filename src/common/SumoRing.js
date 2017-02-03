@@ -1,6 +1,7 @@
 'use strict';
 
 const PhysicalObject = require('incheon').serialize.PhysicalObject;
+const MASS = 0;
 const RADIUS_TOP = 20;
 const RADIUS_BOTTOM = 18;
 const HEIGHT = 30;
@@ -18,12 +19,12 @@ class SumoRing extends PhysicalObject {
 
         // create the physics body
         this.gameEngine = gameEngine;
-        this.physicsObj = gameEngine.physicsEngine.addCylinder(RADIUS_TOP, RADIUS_BOTTOM, HEIGHT, RADIUS_SEGMENTS);
+        this.physicsObj = gameEngine.physicsEngine.addCylinder(RADIUS_TOP, RADIUS_BOTTOM, HEIGHT, RADIUS_SEGMENTS, MASS);
         this.physicsObj.position.copy(this.position);
 
         // create the render object
         if (gameEngine.renderer)
-            this.renderObj = gameEngine.renderer.addSumoRing(position, RADIUS_TOP, RADIUS_BOTTOM, HEIGHT, RADIUS_SEGMENTS);
+            this.renderObj = gameEngine.renderer.addSumoRing(this.position, RADIUS_TOP, RADIUS_BOTTOM, HEIGHT, RADIUS_SEGMENTS);
     }
 
     toString() {

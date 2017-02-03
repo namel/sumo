@@ -1,7 +1,8 @@
 'use strict';
 
 const PhysicalObject = require('incheon').serialize.PhysicalObject;
-const RADIUS = 10;
+const RADIUS = 5;
+const MASS = 5;
 
 class Fighter extends PhysicalObject {
 
@@ -15,12 +16,12 @@ class Fighter extends PhysicalObject {
 
         // create the physics body
         this.gameEngine = gameEngine;
-        this.physicsObj = gameEngine.physicsEngine.addSphere(RADIUS);
+        this.physicsObj = gameEngine.physicsEngine.addSphere(RADIUS, MASS);
         this.physicsObj.position.copy(this.position);
 
         // create the render object
         if (gameEngine.renderer)
-            this.renderObj = gameEngine.renderer.addSumoFighter(position, RADIUS);
+            this.renderObj = gameEngine.renderer.addSumoFighter(this.position, RADIUS);
     }
 
     toString() {
