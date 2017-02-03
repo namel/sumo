@@ -1,6 +1,7 @@
 'use strict';
 
 const Renderer = require('incheon').render.Renderer;
+const DEBUG__SHOW_CANNON_FRAMES = false;
 
 class SumoRenderer extends Renderer {
 
@@ -51,7 +52,25 @@ class SumoRenderer extends Renderer {
         // a local raycaster
         this.raycaster = new THREE.Raycaster();
 
-        return Promise.resolve();
+        return new Promise((resolve, reject) => {
+
+            if (!DEBUG__SHOW_CANNON_FRAMES) {
+                resolve();
+                return;
+            }
+
+            // show cannon objects
+            window.CANNON = this.gameEngine.physicsEngine.CANNON;
+            let head = document.getElementsByTagName('head')[0];
+            let script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = '/src/lib/CannonDebugRenderer.js';
+            script.onload = () => {
+                this.cannonDebugRenderer = new THREE.CannonDebugRenderer( this.scene, this.gameEngine.physicsEngine.world );
+                resolve();
+            };
+            head.appendChild(script);
+        });
     }
 
     // given a point on the camera (screen click)
@@ -77,6 +96,8 @@ class SumoRenderer extends Renderer {
     draw() {
         super.draw();
         this.renderer.render(this.scene, this.camera);
+        if (this.cannonDebugRenderer)
+            this.cannonDebugRenderer.update();
     }
 
     // add one object: a single sphere
@@ -112,6 +133,23 @@ class SumoRenderer extends Renderer {
         });
         this.floor = new THREE.Mesh(
             new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radiusSegments),
+            floorMaterial);
+        this.floor.position.copy(position);
+        this.floor.receiveShadow = true;
+        this.scene.add(this.floor);
+
+        return this.floor;
+    }
+
+    addSumoBox(position, x, y, z) {
+        // setup floor
+        let floorMaterial = new THREE.MeshPhongMaterial({
+            color: 0xde761a,
+            wireframe: false,
+            shininess: 30
+        });
+        this.floor = new THREE.Mesh(
+            new THREE.BoxGeometry(x, y, z),
             floorMaterial);
         this.floor.position.copy(position);
         this.floor.receiveShadow = true;
