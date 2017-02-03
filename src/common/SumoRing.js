@@ -19,6 +19,7 @@ class SumoRing extends PhysicalObject {
         // create the physics body
         this.gameEngine = gameEngine;
         this.physicsObj = gameEngine.physicsEngine.addCylinder(RADIUS_TOP, RADIUS_BOTTOM, HEIGHT, RADIUS_SEGMENTS);
+        this.physicsObj.position.copy(this.position);
 
         // create the render object
         if (gameEngine.renderer)
