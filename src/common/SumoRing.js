@@ -9,17 +9,20 @@ const RADIUS_SEGMENTS = 64;
 class SumoRing extends PhysicalObject {
 
     constructor(id, gameEngine, position) {
-
         super(id, position);
         this.class = SumoRing;
         this.gameEngine = gameEngine;
+    }
+
+    joinGame(gameEngine) {
 
         // create the physics body
+        this.gameEngine = gameEngine;
         this.physicsObj = gameEngine.physicsEngine.addCylinder(RADIUS_TOP, RADIUS_BOTTOM, HEIGHT, RADIUS_SEGMENTS);
 
         // create the render object
         if (gameEngine.renderer)
-            this.renderObj = gameEngine.renderer.addCylinder(RADIUS_TOP, RADIUS_BOTTOM, HEIGHT, RADIUS_SEGMENTS);
+            this.renderObj = gameEngine.renderer.addSumoRing(RADIUS_TOP, RADIUS_BOTTOM, HEIGHT, RADIUS_SEGMENTS);
     }
 
     toString() {

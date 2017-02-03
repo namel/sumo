@@ -8,9 +8,14 @@ class SumoClientEngine extends ClientEngine {
     constructor(gameEngine, options) {
         super(gameEngine, options);
 
+        // TODO: 1. shouldn't be necessary to register ThreeVector and FourVector
+        // TODO: 2. on the original sumo I registered the classes in the gameEngine
+        //          instead of doing it twice (clientEngine and serverEngine)
         this.renderer = this.gameEngine.renderer = new SumoRenderer(gameEngine, this);
         this.serializer.registerClass(require('../common/Fighter'));
         this.serializer.registerClass(require('../common/SumoRing'));
+        this.serializer.registerClass(require('incheon').serialize.ThreeVector);
+        this.serializer.registerClass(require('incheon').serialize.FourVector);
         this.gameEngine.on('client.preStep', this.processInputs.bind(this));
     }
 

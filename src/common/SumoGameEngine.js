@@ -1,6 +1,7 @@
 'use strict';
 
 const GameEngine = require('incheon').GameEngine;
+const ThreeVector = require('incheon').serialize.ThreeVector;
 const Fighter = require('./Fighter');
 const SumoRing = require('./SumoRing');
 
