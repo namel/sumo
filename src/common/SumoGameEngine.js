@@ -4,11 +4,17 @@ const GameEngine = require('incheon').GameEngine;
 const ThreeVector = require('incheon').serialize.ThreeVector;
 const Fighter = require('./Fighter');
 const SumoRing = require('./SumoRing');
+const IMPULSE_STRENGTH = 2;
+
+let CANNON = null;
+
 
 class SumoGameEngine extends GameEngine {
 
     constructor(options) {
         super(options);
+
+        CANNON = this.physicsEngine.CANNON;
 
         this.on('server__playerJoined', this.makeFighter.bind(this));
         this.on('server__playerDisconnected', this.removeFighter.bind(this));
@@ -79,10 +85,13 @@ class SumoGameEngine extends GameEngine {
         super.processInput(inputData, playerId);
 
         // apply a central impulse
-        let moveDirection = new this.physicsEngine.THREE.Vector3(inputData.input.x, 0, inputData.input.z);
-        moveDirection.normalize().multiplyScalar(IMPULSE_STRENGTH);
+        let moveDirection = new CANNON.Vec3(inputData.input.x, 0, inputData.input.z);
+        moveDirection.normalize();
+        moveDirection = moveDirection.scale(IMPULSE_STRENGTH);
         let playerSumo = this.world.getPlayerObject(playerId);
-        playerSumo.sphere.applyCentralImpulse(moveDirection);
+        let sphere = playerSumo.physicsObj;
+        let playerSumoCenter = sphere.position.clone();
+        sphere.applyImpulse(moveDirection, playerSumoCenter);
     }
 
 }
