@@ -12,7 +12,7 @@ class Fighter extends PhysicalObject {
         this.gameEngine = gameEngine;
     }
 
-    joinGame(gameEngine) {
+    onAddToWorld(gameEngine) {
 
         // create the physics body
         this.gameEngine = gameEngine;
