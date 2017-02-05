@@ -38,11 +38,10 @@ class SumoClientEngine extends ClientEngine {
 
     processInputs() {
         if (this.touchData) {
-            let input = this.gameEngine.renderer.calculateImpulse(this.touchData.x, this.touchData.y, this.gameEngine.world.objects[this.playerId]);
-            if (input) {
-                // console.log(`sending input to server ${JSON.stringify(input)}`);
+            let selfObj = this.gameEngine.world.getPlayerObject(this.playerId);
+            let input = this.gameEngine.renderer.calculateImpulse(this.touchData.x, this.touchData.y, selfObj);
+            if (input)
                 this.sendInput(input);
-            }
             this.touchData = null;
         }
     }
