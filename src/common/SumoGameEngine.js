@@ -4,7 +4,7 @@ const GameEngine = require('incheon').GameEngine;
 const ThreeVector = require('incheon').serialize.ThreeVector;
 const Fighter = require('./Fighter');
 const SumoRing = require('./SumoRing');
-const IMPULSE_STRENGTH = 2;
+const IMPULSE_STRENGTH = 8;
 
 let CANNON = null;
 

@@ -1,9 +1,8 @@
-"use strict";
+'use strict';
 const PhysijsPhysicsEngine = require('incheon').physics.PhysijsPhysicsEngine;
 const SUMO_MASS = 6;
 const FRICTION = 0.9;
 const RESTITUTION = 0.5;
-
 
 class SumoPhysicsEngine extends PhysijsPhysicsEngine {
 

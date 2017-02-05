@@ -2,7 +2,7 @@
 
 const PhysicalObject = require('incheon').serialize.PhysicalObject;
 const RADIUS = 4;
-const MASS = 5;
+const MASS = 3;
 
 class Fighter extends PhysicalObject {
 

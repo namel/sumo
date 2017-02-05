@@ -25,7 +25,7 @@ class SumoRenderer extends Renderer {
 
         // setup camera
         this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.camera.position.set(0, 45, 60);
+        this.camera.position.set(0, 45, 100);
         this.camera.up = new THREE.Vector3(0, 1, 0);
         this.camera.lookAt(new THREE.Vector3(0, 0, 0));
         this.scene.add(this.camera);
