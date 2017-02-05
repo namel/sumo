@@ -11,6 +11,7 @@ class SumoRenderer extends Renderer {
         this.scene = null;
         this.camera = null;
         this.renderer = null;
+        this.state = 54321;
     }
 
     // setup the 3D scene
@@ -100,12 +101,20 @@ class SumoRenderer extends Renderer {
             this.cannonDebugRenderer.update();
     }
 
+    nextFloat() {
+        const m = 0x80000000;
+        const a = 1103515245;
+        const c = 12345;
+        this.state = (a * this.state + c) % m;
+        return this.state / (m - 1);
+    }
+
     // add one object: a single sphere
-    addSumoFighter(position, radius) {
+    addSumoFighter(id, position, radius) {
 
         // generate a color which is random but not dark
-        let r = Math.random();
-        let g = Math.random();
+        let r = this.nextFloat();
+        let g = this.nextFloat();
         let b = Math.max(0, 1 - r - g);
         let objColor = new THREE.Color(r, g, b);
 

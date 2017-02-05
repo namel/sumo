@@ -21,7 +21,7 @@ class Fighter extends PhysicalObject {
 
         // create the render object
         if (gameEngine.renderer)
-            this.renderObj = gameEngine.renderer.addSumoFighter(this.position, RADIUS);
+            this.renderObj = gameEngine.renderer.addSumoFighter(this.id, this.position, RADIUS);
     }
 
     toString() {
