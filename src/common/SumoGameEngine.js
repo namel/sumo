@@ -6,6 +6,7 @@ const Fighter = require('./Fighter');
 const SumoRing = require('./SumoRing');
 const IMPULSE_STRENGTH = 12;
 
+//todo check if this should be global
 let CANNON = null;
 
 
